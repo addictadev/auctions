@@ -671,7 +671,7 @@ console.log(subcategoryResult.results)
         if (subcategoryResult && subcategoryResult.results.includes(winner._id)) {
           console.log("done")
           subcategoryResult.results.pull(winnerId);
-          subcategoryResult.totalAmount -= winner.amount;
+          subcategoryResult.totalAmount -= winner.totalPaid;
 
           if (subcategoryResult.results.length === 0) {
             subcategoryResult.status = 'loser';

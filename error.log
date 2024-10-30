@@ -1024,3 +1024,38 @@
     at TLSWrap.onStreamRead (node:internal/stream_base_commons:217:20)
 2024-10-23T09:28:03.085Z error: Error: read ECONNRESET
     at TLSWrap.onStreamRead (node:internal/stream_base_commons:217:20)
+2024-10-30T10:00:33.266Z error: MongoServerError: Caused by :: Write conflict during plan execution and yielding is disabled. :: Please retry your operation or multi-document transaction.
+    at Connection.sendCommand (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\cmap\connection.js:281:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Connection.command (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\cmap\connection.js:304:26)
+    at async Server.command (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\sdam\server.js:169:24)
+    at async UpdateOneOperation.execute (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\operations\update.js:67:21)
+    at async executeOperation (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\operations\execute_operation.js:126:16)
+2024-10-30T10:07:34.731Z error: MongoServerError: Caused by :: Write conflict during plan execution and yielding is disabled. :: Please retry your operation or multi-document transaction.
+    at Connection.sendCommand (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\cmap\connection.js:281:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Connection.command (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\cmap\connection.js:304:26)
+    at async Server.command (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\sdam\server.js:169:24)
+    at async UpdateOneOperation.execute (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\operations\update.js:67:21)
+    at async executeOperation (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\operations\execute_operation.js:126:16)
+2024-10-30T10:17:27.240Z error: MongoServerError: Caused by :: Write conflict during plan execution and yielding is disabled. :: Please retry your operation or multi-document transaction.
+    at Connection.sendCommand (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\cmap\connection.js:281:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Connection.command (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\cmap\connection.js:304:26)
+    at async Server.command (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\sdam\server.js:169:24)
+    at async UpdateOneOperation.execute (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\operations\update.js:67:21)
+    at async executeOperation (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\operations\execute_operation.js:126:16)
+2024-10-30T11:06:05.006Z error: MongoServerError: Caused by :: Write conflict during plan execution and yielding is disabled. :: Please retry your operation or multi-document transaction.
+    at Connection.sendCommand (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\cmap\connection.js:281:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Connection.command (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\cmap\connection.js:304:26)
+    at async Server.command (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\sdam\server.js:169:24)
+    at async UpdateOneOperation.execute (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\operations\update.js:67:21)
+    at async executeOperation (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\operations\execute_operation.js:126:16)
+2024-10-30T11:09:05.382Z error: MongoServerError: Caused by :: Write conflict during plan execution and yielding is disabled. :: Please retry your operation or multi-document transaction.
+    at Connection.sendCommand (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\cmap\connection.js:281:27)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async Connection.command (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\cmap\connection.js:304:26)
+    at async Server.command (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\sdam\server.js:169:24)
+    at async UpdateOneOperation.execute (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\operations\update.js:67:21)
+    at async executeOperation (C:\Users\XPRISTO\Desktop\auctions\node_modules\mongodb\lib\operations\execute_operation.js:126:16)

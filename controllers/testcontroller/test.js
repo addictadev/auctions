@@ -885,7 +885,7 @@ exports.SubcategoryResult = async (req, res) => {
       },
       {
         $addFields: {
-          totalAmount: {
+          totalAmountfromresulte: {
             $sum: {
               $map: {
                 input: '$winnerDetails',
@@ -998,7 +998,10 @@ exports.SubcategoryResult = async (req, res) => {
               then: true,
               else: false
             }
-          }
+          },
+          
+            totalAmount: "$totalAmount" // Simply add totalAmount field here from SubcategoryResult
+          
         }
       },
       {
@@ -1009,6 +1012,7 @@ exports.SubcategoryResult = async (req, res) => {
           categoryName: '$categoryDetails.name',
           deposit: '$subcategoryDetails.deposit',
           totalAmount: 1,
+          totalAmountfromresulte:1,
           payed: 1,
           items: 1,
           refund: 1, // Include refund status

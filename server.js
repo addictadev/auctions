@@ -11,9 +11,6 @@ const { createNotificationNamespace, setupNotificationInterval } = require('./so
 
 
 
-
-
-
 // initializeApp({
 //   credential: applicationDefault(),
 //   projectId: 'potion-for-creators',

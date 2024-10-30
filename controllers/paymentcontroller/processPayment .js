@@ -179,6 +179,7 @@ const Notification = require('../../models/notification');
 const AppError = require('../../utils/appError');
 const admin = require('../../firebase/firebaseAdmin'); // Firebase Admin SDK
 const factory = require('../../utils/apiFactory');
+const AdminNotification = require('../../models/adminNotificationModel'); 
 
 const getprocessPayment = factory.getAll(Payment);
 // Helper function to send Firebase notifications
@@ -269,6 +270,20 @@ const processPayment = async (req, res, next) => {
 
     await sendFirebaseNotification(user, 'Payment Successful', notification.message);
     await notification.save({ session });
+
+    const adminNotificationMessage = billingMethod === 'wallet'
+      ? `تمت معالجة الدفع بمبلغ ${dueAmount} بنجاح للبند ${item.name} بواسطة المستخدم ${userId}.`
+      : `تم تقديم طلب دفع للبند ${item.name} ويتطلب موافقة الإدارة.`;
+      
+    const adminNotification = new AdminNotification({
+      userId,
+      title: 'إشعار دفع جديد',
+      message: adminNotificationMessage,
+    });
+
+    await adminNotification.save({ session });
+
+
 
     await session.commitTransaction();
     session.endSession();

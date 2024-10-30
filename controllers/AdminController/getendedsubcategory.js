@@ -9,6 +9,7 @@ const Payment = require('../../models/Payment');
 const { ObjectId } = require('mongodb');
 const Notification = require('../../models/notification');
 const admin = require('../../firebase/firebaseAdmin');  
+const Deposit = require('../../models/Deposit');
 exports.getEndedSubcategories = async (req, res) => {
   try {
     const endedSubcategories = await Subcategory.aggregate([
@@ -643,9 +644,12 @@ exports.adminActionOnWinner = async (req, res) => {
     const user = winner.userId;
     const item = winner.itemId;
     const subcategory = winner.subcategory;
+    const deposit = await Deposit.findOne({ userId: user, item: subcategory })
+    .select({ amount: 1, status: 1 });
+console.log(deposit.amount);
     let message;
     let type;
-
+    const subcategoryResult = await SubcategoryResult.findOne({ userId: user._id, subcategory: subcategory,status: 'winner' });
     // console.log(action);
     // Perform admin action on the winner
     switch (action) {
@@ -654,6 +658,29 @@ exports.adminActionOnWinner = async (req, res) => {
         winner.statusadmin = action;
         message = 'Your winning bid has been approved.';
         type='winner';
+        if (subcategoryResult && subcategoryResult.results.includes(winner._id)) {
+          if (subcategoryResult.results.length > 0) {
+            const remainingWinners = await Winner.find({
+              _id: { $in: subcategoryResult.results }
+            });
+            let newTotalAmount = remainingWinners.reduce((sum, winner) => sum + winner.totalPaid, 0);
+            // Subtract deposit amount
+            console.log(newTotalAmount);
+
+            newTotalAmount -= deposit.amount;
+            console.log(newTotalAmount);
+            
+            
+            
+            
+            subcategoryResult.totalAmount = newTotalAmount;
+            await subcategoryResult.save({ validateBeforeSave: false });
+            console.log(subcategoryResult);
+
+
+
+          }
+        }
         break;
         case 'regected':
           case 'cancelled':
@@ -663,16 +690,30 @@ exports.adminActionOnWinner = async (req, res) => {
             message = 'Your winning bid has been rejected or cancelled.';
             
             // Remove winner from SubcategoryResult
-            const subcategoryResult = await SubcategoryResult.findOne({ userId: user._id, subcategory: subcategory,status: 'winner' });
-            console.log("winner",winner._id)
-console.log(subcategoryResult.results)
+
+
 
 
         if (subcategoryResult && subcategoryResult.results.includes(winner._id)) {
-          console.log("done")
+   
           subcategoryResult.results.pull(winnerId);
-          subcategoryResult.totalAmount -= winner.totalPaid;
+          if (subcategoryResult.results.length > 0) {
+            const remainingWinners = await Winner.find({
+              _id: { $in: subcategoryResult.results }
+            });
+            let newTotalAmount = remainingWinners.reduce((sum, winner) => sum + winner.totalPaid, 0);
 
+            // Subtract deposit amount
+            newTotalAmount -= deposit.amount;
+
+
+
+            subcategoryResult.totalAmount = newTotalAmount;
+            await subcategoryResult.save({ validateBeforeSave: false });
+
+
+
+          }
           if (subcategoryResult.results.length === 0) {
             subcategoryResult.status = 'loser';
             subcategoryResult.totalAmount = 0;

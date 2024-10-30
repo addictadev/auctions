@@ -140,6 +140,7 @@ const catchAsync = require('../../utils/catchAsync');
 const factory = require('../../utils/apiFactory');
 const mongoose = require('mongoose');
 const AppError = require('../../utils/appError');
+const AdminNotification = require('../../models/adminNotificationModel'); 
 
 exports.getChargingRequests = factory.getAll(WalletCharger);
 exports.getChargingRequestdetails = factory.getOne(WalletCharger);
@@ -178,7 +179,14 @@ exports.chargeWallet = catchAsync(async (req, res, next) => {
       console.error('User FCM token not found or invalid');
       // Handle the case where the user's FCM token is missing or invalid
     }
-
+    const adminNotificationMessage = `تم تقديم طلب شحن المحفظة من قبل المستخدم ${userId}.`;
+    const adminNotification = new AdminNotification({
+      userId,
+      title: 'طلب شحن المحفظة',
+      message: adminNotificationMessage,
+    });
+    
+    await adminNotification.save({ session });
     await session.commitTransaction();
     session.endSession();
 

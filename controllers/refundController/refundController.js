@@ -1,6 +1,8 @@
 const RefundRequest = require('../../models/RefundReques');
 const AppError = require('../../utils/appError'); // Ensure you have an AppError class for handling errors
-const catchAsync = require('../../utils/catchAsync'); // Ensure you have a utility function for catching errors in async functions
+const catchAsync = require('../../utils/catchAsync'); 
+const AdminNotification = require('../../models/adminNotificationModel'); 
+// Ensure you have a utility function for catching errors in async functions
 
 exports.createRefundRequest = catchAsync(async (req, res, next) => {
   const { user } = req;
@@ -20,7 +22,14 @@ exports.createRefundRequest = catchAsync(async (req, res, next) => {
   const newRequest = await RefundRequest.create({
     user: user._id
   });
+  const adminNotificationMessage = `تم تقديم طلب استرداد جديد من قبل المستخدم ${user.name}.`;
+  const adminNotification = new AdminNotification({
+    userId: user._id,
+    title: 'طلب استرداد جديد',
+    message: adminNotificationMessage,
+  });
 
+  await adminNotification.save();
   res.status(201).send({
     status: 'success',
     data: {

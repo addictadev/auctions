@@ -2146,6 +2146,7 @@ const SubcategoryResult = require('../models/SubcategoryResult');
 const mongoose = require('mongoose');
 const admin = require('../firebase/firebaseAdmin'); 
 const logger = require('../logger'); // Import the logger
+const AdminNotification = require('../models/adminNotificationModel');
 
 const notifyAuctionEvents = async (notificationNamespace) => {
   const session = await mongoose.startSession();
@@ -2209,7 +2210,13 @@ const processStartingSubcategories = async (now, notificationNamespace, session)
     });
 
     await Promise.all(startNotifications);
-
+    const adminNotificationMessage = `بدأت المزاد الفرعي ${subcategory.name} الآن وسينتهي في ${subcategory.endDate.toLocaleTimeString()}.`;
+    const adminNotification = new AdminNotification({
+      title: 'إشعار بدء مزاد فرعي',
+      message: adminNotificationMessage,
+    });
+console.log("adminNotification",adminNotification);
+    await adminNotification.save({validateBeforeSave:false  });
     subcategory.notifiedStart = true;
     await subcategory.save({ session });
   }
@@ -2477,6 +2484,13 @@ const processEndingSubcategories = async (now, notificationNamespace, session) =
       });
 
       await Promise.all(endNotifications);
+      const adminNotificationMessage = `انتهى المزاد الفرعي ${subcategory.name}.`;
+      const adminNotification = new AdminNotification({
+        title: 'إشعار انتهاء مزاد فرعي',
+        message: adminNotificationMessage,
+      });
+
+      await adminNotification.save({ session });
     }
   } catch (error) {
     console.error('Error processing ending subcategories:', error);
@@ -2649,6 +2663,15 @@ const handleWinner = async (item, winnerBid, subcategory, notificationNamespace,
     });
     await winnerEntry.save({ session });
 
+
+
+
+    const adminNotificationMessage = `فاز المستخدم ${winnerBid.userId} بالمزاد للبند ${item.name} في الفئة الفرعية ${subcategory.name}.`;
+    const adminNotification = new AdminNotification({
+      title: 'إشعار فوز جديد بالمزاد',
+      message: adminNotificationMessage,
+    });
+    await adminNotification.save({ session });
     // Update item status and mark as notified
     item.notifiedWinner = true;
     item.status = 'completed';

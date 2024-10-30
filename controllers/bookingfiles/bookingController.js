@@ -262,7 +262,7 @@ const factory = require('../../utils/apiFactory');
 const AppError = require('../../utils/appError');
 const admin = require('../../firebase/firebaseAdmin'); // Firebase Admin SDK
 const APIFeatures = require('../../utils/apiFeatures');
-
+const AdminNotification = require('../../models/adminNotificationModel'); 
 // Helper function to send Firebase notifications
 const sendFirebaseNotification = async (user, title, body) => {
   if (user && user.fcmToken) {
@@ -344,7 +344,17 @@ exports.bookFile = async (req, res, next) => {
 
     await sendFirebaseNotification(user, 'Booking Notification', notificationMessage);
     await notification.save({ session });
+    const adminNotificationMessage = billingmethod === 'wallet'
+      ? `New booking approved for ${req.item.name} by user ${userId}.`
+      : `New booking for ${req.item.name} requires approval.`;
 
+    const adminNotification = new AdminNotification({
+      userId,
+      title: 'New Booking Notification',
+      message: adminNotificationMessage,
+    });
+
+    await adminNotification.save({ session });
     await session.commitTransaction();
     session.endSession();
 

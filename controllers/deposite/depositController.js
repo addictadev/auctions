@@ -7,6 +7,7 @@ const factory = require('../../utils/apiFactory');
 // exports.getDeposit = factory.getOne(DepositeSchema);
 // exports.createDeposit = factory.createOne(DepositeSchema);
 // exports.deleteDeposit = factory.deleteOne(DepositeSchema);
+const AdminNotification = require('../../models/adminNotificationModel'); 
 
 const User = require('../../models/User');
 const Notification = require('../../models/notification');
@@ -365,7 +366,17 @@ exports.createDeposit = catchAsync(async (req, res, next) => {
 
     await sendFirebaseNotification(user, 'Deposit Notification', notificationMessage);
     await notification.save({ session });
+    const adminNotificationMessage = billingmethod === 'wallet'
+      ? `تمت الموافقة على إيداع بمبلغ ${amount} للبند ${item.name} من المستخدم ${userId}.`
+      : `تم تقديم طلب إيداع للبند ${item.name} ويتطلب موافقة الإدارة.`;
 
+    const adminNotification = new AdminNotification({
+      userId,
+      title: 'إشعار إيداع جديد',
+      message: adminNotificationMessage,
+    });
+
+    await adminNotification.save({ session });
     if (billingmethod === 'wallet') {
       await user.save({ session, validateBeforeSave: false });
     }

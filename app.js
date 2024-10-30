@@ -30,7 +30,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const permissionRoutes = require('./routes/permissions');
 const apppermissionRoutes = require('./routes/permissionRoutes');
 const tabbyRoutes = require('./routes/testingfortabby');
-
+const adminNotificationRoutes = require('./routes/adminNotificationRoutes');
 
 const privacyPolicyRoutes = require('./routes/privacyPolicy');
 const socialMediaLinkRoutes = require('./routes/socialMediaLink');
@@ -123,6 +123,7 @@ app.use((req, res, next) => {
 
 app.use('/api/v1/tab', tabbyRoutes);
 app.use('/api/v1/refundedDeposite', refundedDeposite);
+app.use('/api/v1/admin-notifications', adminNotificationRoutes);
 
 
 app.use('/api/v1/privacyPolicy', privacyPolicyRoutes);

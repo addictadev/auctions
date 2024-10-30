@@ -3799,7 +3799,7 @@ exports.getItemBidDetails2 = async (req, res) => {
               }
             }
           },
-          totalAmount: {
+          totalAmountresult: {
             $sum: {
               $map: {
                 input: '$winnerDetails',
@@ -3819,6 +3819,7 @@ exports.getItemBidDetails2 = async (req, res) => {
               }
             }
           },
+          totalAmount: "$totalAmount",
           payed: {
             $cond: {
               if: {
@@ -3875,6 +3876,7 @@ exports.getItemBidDetails2 = async (req, res) => {
           approvedWinnerCount: 1,
           pendingWinnerCount: 1,
           loserCount: 1,
+          totalAmountresult:1,
           cancelledCount: 1,
           inProgressCount: 1,
           totalAmount: 1,

@@ -1074,3 +1074,13 @@
     at Writable.write (node:internal/streams/writable:502:10)
     at Connection.writeCommand (G:\auctions new\auctions-1\node_modules\mongodb\lib\cmap\connection.js:338:25)
     at processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-10-30T21:20:28.188Z error: MongoNetworkError: getaddrinfo ENOTFOUND ac-wlue6z6-shard-00-01.a93vbj1.mongodb.net
+    at connectionFailureError (G:\auctions new\auctions-1\node_modules\mongodb\lib\cmap\connect.js:353:20)
+    at TLSSocket.<anonymous> (G:\auctions new\auctions-1\node_modules\mongodb\lib\cmap\connect.js:268:44)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:518:28)
+    at emitErrorNT (node:internal/streams/destroy:169:8)
+    at emitErrorCloseNT (node:internal/streams/destroy:128:3)
+    at process.processTicksAndRejections (node:internal/process/task_queues:82:21)
+2024-11-03T11:14:55.773Z error: Error: read ECONNRESET
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:217:20)

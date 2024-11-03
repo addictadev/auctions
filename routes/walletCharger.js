@@ -12,7 +12,8 @@ function generateValidFilePath(filename) {
     return validPath;
   }
 // Route to create a wallet charging request
-router.post('/charge-wallet',upload.single('billImage'),(req,res,next)=>{
+router.post('/charge-wallet',upload.single('billImage'),authMiddleware 
+,(req,res,next)=>{
 
     if (!req.file) {
       // return ne.status(400).send('No file uploaded.');
@@ -28,12 +29,12 @@ router.post('/charge-wallet',upload.single('billImage'),(req,res,next)=>{
   },authMiddleware,chargeWallet);
 
 // Route for admin to review wallet charging request
-router.post('/review-wallet-charger', reviewWalletCharger);
+router.post('/review-wallet-charger',authMiddleware, reviewWalletCharger);
 
-router.get('/charging-history', getChargingRequests);
-router.get('/charging-history/getdetails/:id', getChargingRequestdetails);
+router.get('/charging-history',authMiddleware, getChargingRequests);
+router.get('/charging-history/getdetails/:id',authMiddleware, getChargingRequestdetails);
 // Route for user to get their charging history
-router.get('/charging-history/:userId', getUserChargingHistory);
+router.get('/charging-history/:userId',authMiddleware, getUserChargingHistory);
 
 
 

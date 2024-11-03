@@ -17,7 +17,7 @@ function generateValidFilePath(filename) {
     const validPath = formattedParts.join('/'); // Join the parts back together with forward slashes (/)
     return validPath;
   }
-router.post('/book',upload.single('billImage'),(req,res,next)=>{
+router.post('/book',upload.single('billImage'),authMiddleware,(req,res,next)=>{
     if (req.body.billingmethod == 'wallet') {
         return next();
       }

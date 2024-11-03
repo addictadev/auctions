@@ -718,6 +718,108 @@ console.log(lastOTP)
 
 
 
+// const loginUser = catchAsync(async (req, res, next) => {
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+
+//   try {
+//     const { phoneNumber, password, idNumber, fcmToken, deviceDetails } = req.body;
+
+//     if (!phoneNumber && !idNumber) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return next(new AppError('Phone number or ID number must be provided', 400));
+//     }
+
+//     let query;
+//     if (idNumber) {
+//       if (idNumber.length > 14) {
+//         await session.abortTransaction();
+//         session.endSession();
+//         return next(new AppError('Invalid ID number', 400));
+//       }
+//       query = { idNumber: idNumber };
+//     } else {
+//       query = { phoneNumber: phoneNumber };
+//     }
+//     console.log(query)
+
+//     const user = await User.findOne(query).select('+passwordHash').session(session);
+//     console.log(user)
+//     if (!user) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return next(new AppError('Invalid credentials', 400));
+//     }
+
+//     if (fcmToken) {
+//       user.fcmToken = fcmToken;
+//       await user.save({ session, validateBeforeSave: false });
+//     }
+
+//     const isMatch = await bcrypt.compare(password, user.passwordHash);
+//     if (!isMatch) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return next(new AppError('Invalid credentials', 400));
+//     }
+
+//     if (!user.verified) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return next(new AppError('Please verify your phone number first', 406));
+//     }
+
+//     if (user.blocked) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return next(new AppError('You are blocked', 400));
+//     }
+
+//     if (!user.approved) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return next(new AppError('Your account has not been approved by the admin yet', 400));
+//     }
+
+//     // Check if the user is already logged in from another device
+//     console.log("deviceDetails",user.deviceDetails)
+//     console.log(" Object.keys(user.deviceDetails)", Object.keys(user.deviceDetails))
+//     console.log(" Object.keys(user)", Object.keys(user.deviceDetails).length !== 0)
+
+
+//     if (
+//       // user.deviceDetails && 
+//       // Object.keys(user.deviceDetails).length !== 0 && 
+//       // deviceDetails && 
+//       // user.deviceDetails.deviceId && 
+//       // deviceDetails.deviceId && 
+//       user.deviceDetails.deviceId !== null&&user.deviceDetails.deviceId !== deviceDetails.deviceId
+//     ) {
+//       // Clear the authToken if user is trying to log in from another device
+//       // user.authToken = null;
+//       await user.save({ session, validateBeforeSave: false });
+//       await session.commitTransaction();
+//       session.endSession();
+//       return next(new AppError('You are already logged in from another device', 400));
+//     }
+//     user.deviceDetails = deviceDetails;
+//     await user.save({ session, validateBeforeSave: false });
+
+//     await createSendToken(user, 200, res, session);
+
+//     await session.commitTransaction();
+//     session.endSession();
+//   } catch (error) {
+//     await session.abortTransaction();
+//     session.endSession();
+//     return next(new AppError(`Server error during login: ${error.message}`, 500));
+//   }
+// });
+
+
+
+
 const loginUser = catchAsync(async (req, res, next) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -731,30 +833,13 @@ const loginUser = catchAsync(async (req, res, next) => {
       return next(new AppError('Phone number or ID number must be provided', 400));
     }
 
-    let query;
-    if (idNumber) {
-      if (idNumber.length > 14) {
-        await session.abortTransaction();
-        session.endSession();
-        return next(new AppError('Invalid ID number', 400));
-      }
-      query = { idNumber: idNumber };
-    } else {
-      query = { phoneNumber: phoneNumber };
-    }
-    console.log(query)
-
+    const query = idNumber ? { idNumber } : { phoneNumber };
     const user = await User.findOne(query).select('+passwordHash').session(session);
-    console.log(user)
+    
     if (!user) {
       await session.abortTransaction();
       session.endSession();
       return next(new AppError('Invalid credentials', 400));
-    }
-
-    if (fcmToken) {
-      user.fcmToken = fcmToken;
-      await user.save({ session, validateBeforeSave: false });
     }
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
@@ -764,48 +849,17 @@ const loginUser = catchAsync(async (req, res, next) => {
       return next(new AppError('Invalid credentials', 400));
     }
 
-    if (!user.verified) {
-      await session.abortTransaction();
-      session.endSession();
-      return next(new AppError('Please verify your phone number first', 406));
+    // Check for prior device login
+    if (user.deviceDetails.deviceId && user.deviceDetails.deviceId !== deviceDetails.deviceId) {
+      user.authToken = null;  // Clear old token to ensure new login is required
     }
 
-    if (user.blocked) {
-      await session.abortTransaction();
-      session.endSession();
-      return next(new AppError('You are blocked', 400));
-    }
-
-    if (!user.approved) {
-      await session.abortTransaction();
-      session.endSession();
-      return next(new AppError('Your account has not been approved by the admin yet', 400));
-    }
-
-    // Check if the user is already logged in from another device
-    console.log("deviceDetails",user.deviceDetails)
-    console.log(" Object.keys(user.deviceDetails)", Object.keys(user.deviceDetails))
-    console.log(" Object.keys(user)", Object.keys(user.deviceDetails).length !== 0)
-
-
-    if (
-      // user.deviceDetails && 
-      // Object.keys(user.deviceDetails).length !== 0 && 
-      // deviceDetails && 
-      // user.deviceDetails.deviceId && 
-      // deviceDetails.deviceId && 
-      user.deviceDetails.deviceId !== null&&user.deviceDetails.deviceId !== deviceDetails.deviceId
-    ) {
-      // Clear the authToken if user is trying to log in from another device
-      // user.authToken = null;
-      await user.save({ session, validateBeforeSave: false });
-      await session.commitTransaction();
-      session.endSession();
-      return next(new AppError('You are already logged in from another device', 400));
-    }
+    // Set new device details and FCM token
     user.deviceDetails = deviceDetails;
+    if (fcmToken) user.fcmToken = fcmToken;
     await user.save({ session, validateBeforeSave: false });
 
+    // Generate a new authToken and send it
     await createSendToken(user, 200, res, session);
 
     await session.commitTransaction();
@@ -816,6 +870,26 @@ const loginUser = catchAsync(async (req, res, next) => {
     return next(new AppError(`Server error during login: ${error.message}`, 500));
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1054,26 +1128,42 @@ const blockUser = async (req, res) => {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-const logoutUser = async (req, res) => {
+// const logoutUser = async (req, res) => {
+//   try {
+//     const userId = req.user.id;
+//     console.log(userId)
+
+//     // Update isLogin status to false
+//    await User.findByIdAndUpdate(userId, {
+//       isLogin: false,
+//       authToken: null,
+//       deviceDetails: {}
+//     });
+
+//     res.status(200).json({ message: 'Logged out successfully.' });
+//   } catch (error) {
+//     res.status(500).json({ message: 'An error occurred during logout.', error: error.message });
+//   }
+// };
+
+
+
+const logoutUser = catchAsync(async (req, res, next) => {
   try {
     const userId = req.user.id;
-    console.log(userId)
 
-    // Update isLogin status to false
-   await User.findByIdAndUpdate(userId, {
+    // Update isLogin status to false, clear authToken, and reset device details
+    await User.findByIdAndUpdate(userId, {
       isLogin: false,
       authToken: null,
-      deviceDetails: {}
+      deviceDetails: { deviceId: null, brand: null, model: null, version: null }
     });
 
     res.status(200).json({ message: 'Logged out successfully.' });
   } catch (error) {
-    res.status(500).json({ message: 'An error occurred during logout.', error: error.message });
+    next(new AppError('An error occurred during logout.', 500));
   }
-};
-
-
-
+});
 
 
 

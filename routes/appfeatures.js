@@ -11,6 +11,7 @@ const Item = require('../models/item');
 const mongoose = require('mongoose');
 const catchAsync = require('../utils/catchAsync');
 const router = express.Router();
+const authMiddleware = require('../middleware/authMiddleware');
 
 
 const localization = require('../middleware/localization');
@@ -29,7 +30,7 @@ router.get('/privacy',localization, privacyPolicyController.getAggregateData );
 
 
 
-router.get('/selected', subcategoryController.getSelectedSubcategories);
+router.get('/selected',authMiddleware, subcategoryController.getSelectedSubcategories);
 router.get('/search',catchAsync(async (req, res, next) => {
   // 1) Getting token and check of it's there
   if (

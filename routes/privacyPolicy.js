@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const privacyPolicyController = require('../controllers/privacyPolicyController/privacyPolicyController');
 const localization = require('../middleware/localization');
+const authMiddleware = require('../middleware/authMiddleware');
 
 router.use(localization);
 

@@ -78,39 +78,78 @@ const catchAsync = require('../utils/catchAsync');
 // module.exports = authMiddleware;
 ///////////////////////////////////////////////////////////////////
 
+// const authMiddleware = catchAsync(async (req, res, next) => {
+//   // 1) Getting token and check if it's there
+//   let token;
+//   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+//     token = req.headers.authorization.split(' ')[1];
+//   } else if (req.cookies.jwt) {
+//     token = req.cookies.jwt;
+//   }
+
+//   if (!token) {
+//     return next(new AppError('You are not logged in! Please log in to get access.', 401));
+//   }
+  
+//   // 2) Verification token
+//   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  
+//   // 3) Check if user still exists
+//   const currentUser = await User.findById(decoded.id);
+//   console.log('currentUser', currentUser);
+
+//   console.log('authToken', currentUser.authToken,"token",token);
+//   if (!currentUser) {
+//     return next(new AppError('The user belonging to this token does no longer exist.', 401));
+//   }
+
+//   // 4) Check if the token is the same as the one stored in the database
+//   // if (currentUser?.authToken !== token) {
+//   //   return next(new AppError('Token is invalid or has been logged out from metawea.', 401));
+//   // }
+
+//   // Grant access to the protected route
+//   req.user = currentUser;
+//   next();
+// });
+
 const authMiddleware = catchAsync(async (req, res, next) => {
-  // 1) Getting token and check if it's there
   let token;
+  if (req.headers.role && req.headers.role === 'admin') {
+    return next(); // Skip further checks for admins
+  }
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
-  } else if (req.cookies.jwt) {
-    token = req.cookies.jwt;
   }
+
 
   if (!token) {
     return next(new AppError('You are not logged in! Please log in to get access.', 401));
   }
-  
-  // 2) Verification token
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  
-  // 3) Check if user still exists
-  const currentUser = await User.findById(decoded.id);
-  console.log('currentUser', currentUser);
 
-  console.log('authToken', currentUser.authToken,"token",token);
+  // Verify token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  const currentUser = await User.findById(decoded.id);
+
   if (!currentUser) {
-    return next(new AppError('The user belonging to this token does no longer exist.', 401));
+    return next(new AppError('User not found.', 401));
   }
 
-  // 4) Check if the token is the same as the one stored in the database
-  // if (currentUser?.authToken !== token) {
-  //   return next(new AppError('Token is invalid or has been logged out from metawea.', 401));
+  // Check if authToken matches the stored token
+  // if (currentUser.authToken !== token) {
+  //   return next(new AppError('Session expired or logged in from another device.', 401));
   // }
 
-  // Grant access to the protected route
-  req.user = currentUser;
+  // Verify `deviceId` header matches stored device ID
+  const headerDeviceId = req.headers.deviceid;
+  if (currentUser.deviceDetails.deviceId !== headerDeviceId) {
+    return next(new AppError('Logged in from a different device. Please log in again.', 401));
+  }
+
+  req.user = currentUser; // Grant access to the protected route
   next();
 });
+
+
 
 module.exports = authMiddleware;

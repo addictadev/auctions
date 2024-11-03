@@ -5,6 +5,7 @@ const { processPayment ,approvePayment,getprocessPayment} = require('../controll
 const mult = require('../utils/multer');
 const AppError = require('../utils/appError');
 const upload = mult('images/lastpayforauctions');
+const authMiddleware = require('../middleware/authMiddleware');
 
 function generateValidFilePath(filename) {
     const parts = filename.split(/[\\/]/); // Split the filename by both forward slash (/) and backslash (\)
@@ -16,7 +17,7 @@ const ensureWinner = require('../middleware/ensureWinner');
 const ensureSubcategoryEnded = require('../middleware/ensureSubcategoryEnded ');
  // Ensure only admins can approve/reject payments
 router.get('/getprocessPayment',getprocessPayment);
-router.post('/pay',upload.single('billImage'),(req,res,next)=>{
+router.post('/pay',upload.single('billImage'),authMiddleware,(req,res,next)=>{
     if (req.body.billingMethod == 'wallet') {
         return next();
       }

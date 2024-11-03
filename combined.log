@@ -1976,3 +1976,4 @@
     at Connection.writeCommand (G:\auctions new\auctions-1\node_modules\mongodb\lib\cmap\connection.js:338:25)
     at processTicksAndRejections (node:internal/process/task_queues:95:5)
 2024-10-30T15:51:22.472Z info: Subcategory results aggregation completed.
+2024-10-30T15:51:36.936Z info: Subcategory results aggregation completed.

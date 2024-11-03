@@ -1992,10 +1992,10 @@ const createAuctionNamespace = (io) => {
         const twentyMinutes = 20 * 60 * 1000;
 
         // Extend the auction end time if less than ten minutes remain
-        if (timeRemaining <= tenMinutes) {
+        if (timeRemaining <= tenMinutes && item.count_increment >= 5) {
           item.subcategoryId.endDate = new Date(new Date(item.subcategoryId.endDate).getTime() + twentyMinutes).toISOString();
           item.minBidIncrement *= 2;
-
+          item.count_increment += 1;
           await item.subcategoryId.save({ session });
           auctionNamespace.to(itemId).emit('auctionExtended', {
             item: item,

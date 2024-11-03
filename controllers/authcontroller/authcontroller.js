@@ -833,7 +833,9 @@ const loginUser = catchAsync(async (req, res, next) => {
       return next(new AppError('Phone number or ID number must be provided', 400));
     }
 
-    const query = idNumber ? { idNumber } : { phoneNumber };
+    const query = idNumber 
+    ? { idNumber } 
+    : { $or: [{ phoneNumber }, { altphoneNumber: phoneNumber }] };
     const user = await User.findOne(query).select('+passwordHash').session(session);
     
     if (!user) {

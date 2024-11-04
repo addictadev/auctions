@@ -114,6 +114,7 @@ const catchAsync = require('../utils/catchAsync');
 // });
 
 const authMiddleware = catchAsync(async (req, res, next) => {
+  console.log('token', req.headers.role);
   let token;
   if (req.headers.role && req.headers.role === 'admin') {
     return next(); // Skip further checks for admins
@@ -121,7 +122,6 @@ const authMiddleware = catchAsync(async (req, res, next) => {
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   }
-
 
   if (!token) {
     return next(new AppError('You are not logged in! Please log in to get access.', 401));

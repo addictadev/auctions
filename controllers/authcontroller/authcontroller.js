@@ -1075,11 +1075,11 @@ const updateProfile = async (req, res) => {
   try {
     console.log(req.body)
     const { userId } = req.params;
-    const { name, birthdate, phoneNumber, idNumber ,profileImage,specialist,companyname,address,idImage,idbackImage} = req.body;
+    const { name, birthdate, phoneNumber, idNumber ,profileImage,specialist,companyname,address,idImage,idbackImage,altphoneNumber} = req.body;
     // const profileImage = req.files.profileImage ? req.files.profileImage[0].path : null;
     // const idImage = req.files && req.files.idImage ? req.files.idImage[0].path : null;
 
-    const updates = { name, birthdate, phoneNumber, idNumber,specialist, companyname,address};
+    const updates = { name, birthdate, phoneNumber, idNumber,specialist, companyname,address,altphoneNumber};
     if (idbackImage) updates.idbackImage = idbackImage;
     if (idImage) updates.idImage = idImage;
 

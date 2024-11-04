@@ -1092,3 +1092,7 @@
     at ConnectionPool.interruptInUseConnections (G:\auctions new\auctions-1\node_modules\mongodb\lib\cmap\connection_pool.js:264:36)
     at G:\auctions new\auctions-1\node_modules\mongodb\lib\cmap\connection_pool.js:252:41
     at process.processTicksAndRejections (node:internal/process/task_queues:77:11)
+2024-11-04T12:48:07.835Z error: PoolClearedOnNetworkError: Connection to ac-wlue6z6-shard-00-01.a93vbj1.mongodb.net:27017 interrupted due to server monitor timeout
+    at ConnectionPool.interruptInUseConnections (G:\auctions new\auctions-1\node_modules\mongodb\lib\cmap\connection_pool.js:264:36)
+    at G:\auctions new\auctions-1\node_modules\mongodb\lib\cmap\connection_pool.js:252:41
+    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)

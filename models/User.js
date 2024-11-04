@@ -96,7 +96,7 @@ const userSchema = new Schema({
   }],
   birthdate: { type: Date },
   phoneNumber: { type: String, required: true, unique: true },
-  altphoneNumber: { type: String, required: true, unique: true },
+  altphoneNumber: { type: String },
 
   passwordHash: { type: String, required: true },
   verified: { type: Boolean, default: false },

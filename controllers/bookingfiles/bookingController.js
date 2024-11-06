@@ -292,7 +292,7 @@ exports.bookFile = async (req, res, next) => {
     const amount = req.item.fileprice;
 
     // Check for duplicate booking
-    const existingBooking = await Booking.findOne({ userId, item: itemId });
+    const existingBooking = await Booking.findOne({ userId, item: itemId ,billingmethod});
     if (existingBooking) {
       await session.abortTransaction();
       session.endSession();

@@ -27,7 +27,7 @@ required: true,
 });
 
 // Creating a compound index on userId and item to ensure uniqueness
-bookingfile.index({ userId: 1, item: 1 }, { unique: true });
+bookingfile.index({ userId: 1, item: 1,billingmethod:1 }, { unique: true });
 
 bookingfile.pre('save', async function (next) {
   // Check if amount is not set or is set to 0

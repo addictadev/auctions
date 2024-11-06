@@ -4850,3 +4850,37 @@
 2024-11-05T08:45:57.920Z info: Subcategory results aggregation completed.
 2024-11-05T08:46:07.931Z info: Subcategory results aggregation completed.
 2024-11-05T08:46:30.880Z info: Subcategory results aggregation completed.
+2024-11-05T08:46:47.665Z info: Subcategory results aggregation completed.
+2024-11-05T08:46:57.659Z info: Subcategory results aggregation completed.
+2024-11-05T08:47:07.736Z info: Subcategory results aggregation completed.
+2024-11-05T08:47:17.735Z info: Subcategory results aggregation completed.
+2024-11-05T08:47:27.819Z info: Subcategory results aggregation completed.
+2024-11-05T08:47:37.773Z info: Subcategory results aggregation completed.
+2024-11-05T08:47:50.154Z info: Subcategory results aggregation completed.
+2024-11-05T08:47:57.756Z info: Subcategory results aggregation completed.
+2024-11-05T08:48:07.753Z info: Subcategory results aggregation completed.
+2024-11-05T08:48:17.823Z info: Subcategory results aggregation completed.
+2024-11-05T08:48:27.824Z info: Subcategory results aggregation completed.
+2024-11-05T08:48:37.744Z info: Subcategory results aggregation completed.
+2024-11-05T08:48:47.831Z info: Subcategory results aggregation completed.
+2024-11-05T08:48:58.784Z info: Subcategory results aggregation completed.
+2024-11-05T08:49:07.822Z info: Subcategory results aggregation completed.
+2024-11-05T08:49:17.831Z info: Subcategory results aggregation completed.
+2024-11-05T08:49:27.822Z info: Subcategory results aggregation completed.
+2024-11-05T08:49:37.903Z info: Subcategory results aggregation completed.
+2024-11-05T08:49:47.934Z info: Subcategory results aggregation completed.
+2024-11-05T08:49:57.983Z info: Subcategory results aggregation completed.
+2024-11-05T08:50:07.904Z info: Subcategory results aggregation completed.
+2024-11-05T08:50:17.839Z info: Subcategory results aggregation completed.
+2024-11-05T08:50:27.823Z info: Subcategory results aggregation completed.
+2024-11-05T08:50:37.901Z info: Subcategory results aggregation completed.
+2024-11-05T08:50:47.990Z info: Subcategory results aggregation completed.
+2024-11-05T08:50:57.905Z info: Subcategory results aggregation completed.
+2024-11-05T08:51:07.910Z info: Subcategory results aggregation completed.
+2024-11-05T08:51:17.997Z info: Subcategory results aggregation completed.
+2024-11-05T08:51:27.987Z info: Subcategory results aggregation completed.
+2024-11-05T08:51:38.468Z info: Subcategory results aggregation completed.
+2024-11-05T15:29:36.360Z error: PoolClearedOnNetworkError: Connection to ac-wlue6z6-shard-00-01.a93vbj1.mongodb.net:27017 interrupted due to server monitor timeout
+    at ConnectionPool.interruptInUseConnections (G:\auctions new\auctions-1\node_modules\mongodb\lib\cmap\connection_pool.js:264:36)
+    at G:\auctions new\auctions-1\node_modules\mongodb\lib\cmap\connection_pool.js:252:41
+    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)

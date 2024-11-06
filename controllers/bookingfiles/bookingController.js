@@ -293,11 +293,11 @@ exports.bookFile = async (req, res, next) => {
 
     // Check for duplicate booking
     const existingBooking = await Booking.findOne({ userId, item: itemId });
-    // if (existingBooking) {
-    //   await session.abortTransaction();
-    //   session.endSession();
-    //   return next(new AppError('Booking already exists for this item and user', 400));
-    // }
+    if (existingBooking) {
+      await session.abortTransaction();
+      session.endSession();
+      return next(new AppError('Booking already exists for this item and user', 400));
+    }
 
     const newBooking = new Booking({
       userId,

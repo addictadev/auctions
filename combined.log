@@ -5100,3 +5100,66 @@
 2024-11-07T11:10:45.234Z info: Subcategory results aggregation completed.
 2024-11-07T11:11:33.255Z error: Error: read ECONNRESET
     at TLSWrap.onStreamRead (node:internal/stream_base_commons:217:20)
+2024-11-07T12:04:10.999Z info: Subcategory results aggregation completed.
+2024-11-07T12:04:21.080Z info: Subcategory results aggregation completed.
+2024-11-07T12:04:40.335Z info: Subcategory results aggregation completed.
+2024-11-07T12:04:40.535Z info: Subcategory results aggregation completed.
+2024-11-07T12:04:49.883Z info: Subcategory results aggregation completed.
+2024-11-07T12:04:59.787Z info: Subcategory results aggregation completed.
+2024-11-07T12:05:11.379Z info: Subcategory results aggregation completed.
+2024-11-07T12:05:19.947Z info: Subcategory results aggregation completed.
+2024-11-07T12:05:37.616Z info: Subcategory results aggregation completed.
+2024-11-07T12:05:41.769Z info: Subcategory results aggregation completed.
+2024-11-07T12:05:49.912Z info: Subcategory results aggregation completed.
+2024-11-07T12:06:00.745Z info: Subcategory results aggregation completed.
+2024-11-07T12:06:10.632Z info: Subcategory results aggregation completed.
+2024-11-07T12:06:19.926Z info: Subcategory results aggregation completed.
+2024-11-07T12:06:30.207Z info: Subcategory results aggregation completed.
+2024-11-07T12:06:39.935Z info: Subcategory results aggregation completed.
+2024-11-07T12:06:50.251Z info: Subcategory results aggregation completed.
+2024-11-07T12:07:00.052Z info: Subcategory results aggregation completed.
+2024-11-07T12:07:10.092Z info: Subcategory results aggregation completed.
+2024-11-07T12:07:19.931Z info: Subcategory results aggregation completed.
+2024-11-07T12:07:36.300Z info: Subcategory results aggregation completed.
+2024-11-07T12:07:46.606Z info: Subcategory results aggregation completed.
+2024-11-07T12:07:50.593Z info: Subcategory results aggregation completed.
+2024-11-07T12:07:59.928Z info: Subcategory results aggregation completed.
+2024-11-07T12:08:11.159Z info: Subcategory results aggregation completed.
+2024-11-07T12:08:25.290Z info: Subcategory results aggregation completed.
+2024-11-07T12:08:30.338Z info: Subcategory results aggregation completed.
+2024-11-07T12:08:41.620Z info: Subcategory results aggregation completed.
+2024-11-07T12:08:50.010Z info: Subcategory results aggregation completed.
+2024-11-07T12:09:00.044Z info: Subcategory results aggregation completed.
+2024-11-07T12:09:10.274Z info: Subcategory results aggregation completed.
+2024-11-07T12:09:20.580Z info: Subcategory results aggregation completed.
+2024-11-07T12:09:57.647Z info: Subcategory results aggregation completed.
+2024-11-07T12:10:10.313Z info: Subcategory results aggregation completed.
+2024-11-07T12:10:10.315Z info: Subcategory results aggregation completed.
+2024-11-07T12:10:16.582Z info: Subcategory results aggregation completed.
+2024-11-07T12:10:22.503Z info: Subcategory results aggregation completed.
+2024-11-07T12:10:33.693Z info: Subcategory results aggregation completed.
+2024-11-07T12:10:43.475Z info: Subcategory results aggregation completed.
+2024-11-07T12:10:43.477Z info: Subcategory results aggregation completed.
+2024-11-07T12:10:50.113Z error: PoolClearedOnNetworkError: Connection to ac-wlue6z6-shard-00-01.a93vbj1.mongodb.net:27017 interrupted due to server monitor timeout
+    at ConnectionPool.interruptInUseConnections (G:\auctions new\auctions-1\node_modules\mongodb\lib\cmap\connection_pool.js:264:36)
+    at G:\auctions new\auctions-1\node_modules\mongodb\lib\cmap\connection_pool.js:252:41
+    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)
+2024-11-07T12:10:52.723Z error: PoolClearedOnNetworkError: Connection to ac-wlue6z6-shard-00-01.a93vbj1.mongodb.net:27017 interrupted due to server monitor timeout
+    at ConnectionPool.interruptInUseConnections (G:\auctions new\auctions-1\node_modules\mongodb\lib\cmap\connection_pool.js:264:36)
+    at G:\auctions new\auctions-1\node_modules\mongodb\lib\cmap\connection_pool.js:252:41
+    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)
+2024-11-07T13:54:26.106Z info: Subcategory results aggregation completed.
+2024-11-07T13:54:35.291Z info: Subcategory results aggregation completed.
+2024-11-07T13:54:56.018Z info: Subcategory results aggregation completed.
+2024-11-07T13:54:56.110Z info: Subcategory results aggregation completed.
+2024-11-07T13:55:10.034Z info: Subcategory results aggregation completed.
+2024-11-07T13:55:24.808Z info: Subcategory results aggregation completed.
+2024-11-07T13:55:26.495Z info: Subcategory results aggregation completed.
+2024-11-07T13:55:35.427Z info: Subcategory results aggregation completed.
+2024-11-07T13:55:45.374Z info: Subcategory results aggregation completed.
+2024-11-07T13:55:55.621Z info: Subcategory results aggregation completed.
+2024-11-07T13:56:05.222Z info: Subcategory results aggregation completed.
+2024-11-07T13:56:15.451Z info: Subcategory results aggregation completed.
+2024-11-07T13:56:25.374Z info: Subcategory results aggregation completed.
+2024-11-07T13:56:35.550Z info: Subcategory results aggregation completed.
+2024-11-07T13:56:45.847Z info: Subcategory results aggregation completed.

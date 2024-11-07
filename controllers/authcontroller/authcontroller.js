@@ -854,19 +854,19 @@ const loginUser = catchAsync(async (req, res, next) => {
     if (!user.verified) {
       await session.abortTransaction();
       session.endSession();
-      return next(new AppError('Please verify your phone number first', 406));
+      return next(new AppError('برجاء التاكد من تفعيل الحساب اولا', 406));
     }
 
     if (user.blocked) {
       await session.abortTransaction();
       session.endSession();
-      return next(new AppError('You are blocked', 400));
+      return next(new AppError('تم حظر حسابك', 400));
     }
 
     if (!user.approved) {
       await session.abortTransaction();
       session.endSession();
-      return next(new AppError('Your account has not been approved by the admin yet', 400));
+      return next(new AppError('حسابك ما زال غير معتمد من قبل المسئول ', 400));
     }
 
 

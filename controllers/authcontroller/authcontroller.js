@@ -922,7 +922,6 @@ const loginUser = catchAsync(async (req, res, next) => {
 
 
 
-
 // Admin Approval Controller
 const approveUser = async (req, res, next) => {
   try {

@@ -5083,3 +5083,20 @@
     at G:\auctions new\auctions-1\node_modules\mongodb\lib\cmap\connection_pool.js:252:41
     at process.processTicksAndRejections (node:internal/process/task_queues:77:11)
 2024-11-07T11:08:15.283Z info: Subcategory results aggregation completed.
+2024-11-07T11:08:25.174Z info: Subcategory results aggregation completed.
+2024-11-07T11:08:35.204Z info: Subcategory results aggregation completed.
+2024-11-07T11:08:45.573Z info: Subcategory results aggregation completed.
+2024-11-07T11:08:55.186Z info: Subcategory results aggregation completed.
+2024-11-07T11:09:05.711Z info: Subcategory results aggregation completed.
+2024-11-07T11:09:15.200Z info: Subcategory results aggregation completed.
+2024-11-07T11:09:25.232Z info: Subcategory results aggregation completed.
+2024-11-07T11:09:35.217Z info: Subcategory results aggregation completed.
+2024-11-07T11:09:45.257Z info: Subcategory results aggregation completed.
+2024-11-07T11:09:55.261Z info: Subcategory results aggregation completed.
+2024-11-07T11:10:05.229Z info: Subcategory results aggregation completed.
+2024-11-07T11:10:15.819Z info: Subcategory results aggregation completed.
+2024-11-07T11:10:26.629Z info: Subcategory results aggregation completed.
+2024-11-07T11:10:35.251Z info: Subcategory results aggregation completed.
+2024-11-07T11:10:45.234Z info: Subcategory results aggregation completed.
+2024-11-07T11:11:33.255Z error: Error: read ECONNRESET
+    at TLSWrap.onStreamRead (node:internal/stream_base_commons:217:20)

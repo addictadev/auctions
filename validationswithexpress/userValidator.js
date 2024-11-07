@@ -1,19 +1,32 @@
 const { body } = require('express-validator');
 
 const userValidator = {
-
-  register : [
+  const register : [
     body('name').notEmpty().withMessage('برجاء ادخال الاسم'),
     body('email'),
     // body('birthdate').isISO8601().withMessage('Valid birthdate is required'),
-    body('phoneNumber').notEmpty().withMessage(' برجاء ادخل رقم الهاتف'),
+    body('phoneNumber')
+        .notEmpty().withMessage(' برجاء ادخل رقم الهاتف')
+        .isLength({ min: 11 }).withMessage('رقم الهاتف يجب أن يتكون من 10 أرقام على الأقل'),
     body('password').isLength({ min: 6 }).withMessage(' برجاء ادخال الرقم السري'),
     body('idNumber').notEmpty().withMessage('برجاء ادخال الرقم القومي'),
     // body('companyname').notEmpty().withMessage('Company name is required'),
     // body('adress').notEmpty().withMessage('Address is required'),
     // body('specialist').notEmpty().withMessage('Specialist field is required')
-  ],
-  
+];
+
+  // register : [
+  //   body('name').notEmpty().withMessage('برجاء ادخال الاسم'),
+  //   body('email'),
+  //   // body('birthdate').isISO8601().withMessage('Valid birthdate is required'),
+  //   body('phoneNumber').notEmpty().withMessage(' برجاء ادخل رقم الهاتف'),
+  //   body('password').isLength({ min: 6 }).withMessage(' برجاء ادخال الرقم السري'),
+  //   body('idNumber').notEmpty().withMessage('برجاء ادخال الرقم القومي'),
+  //   // body('companyname').notEmpty().withMessage('Company name is required'),
+  //   // body('adress').notEmpty().withMessage('Address is required'),
+  //   // body('specialist').notEmpty().withMessage('Specialist field is required')
+  // ],
+
 login : [
     body('phoneNumber')
       .optional()

@@ -327,12 +327,12 @@ const registerUser = async (req, res, next) => {
     
     const existingUser = await User.findOne({ $or: [{ idNumber }, { phoneNumber }] });
     if (existingUser) {
-      return next(new AppError('User already exists', 400));
+      return next(new AppError('المستخدم موجود بالفعل', 400));
     }
 
     const existingIdUser = await User.findOne({ idNumber });
     if (existingIdUser) {
-      return next(new AppError('User with this ID number already exists', 400));
+      return next(new AppError('المستخدم موجود بالفعل', 400));
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
@@ -356,13 +356,13 @@ const registerUser = async (req, res, next) => {
     } catch (error) {
       await User.findByIdAndDelete(newUser._id);
       await OTP.deleteMany({ userId: newUser._id });
-      return next(new AppError('Failed to send OTP. Registration not completed.', 500));
+      return next(new AppError('فشل في ارسال كود التفعيل .', 500));
     }
 
     res.status(201).json({
       status: "success",
       data: {
-        message: 'User registered successfully. Please verify your phone number ,otp valid for 10 minutes.',
+        message: 'تم تسجيل المستخدم بنجاح تم ارسال كود يمكنك الانتظار 3 دقائق قبل طلب كود تفعيل جديد .',
         userId: newUser._id
       }
     });
@@ -379,25 +379,25 @@ const verifyOTP = async (req, res, next) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return next(new AppError('User not found', 404));
+      return next(new AppError('المستخدم غير موجود', 404));
     }
 
     if (user.verified) {
-      return res.status(400).json({ status: 'fail', message: 'User is already verified' });
+      return res.status(400).json({ status: 'fail', message: 'المستخدم تم تفعيله بالفعل' });
     }
 
     const otpRecord = await OTP.findOne({ userId, otpCode });
 
     if (!otpRecord || otpRecord.expiresAt < Date.now()) {
-      return next(new AppError('Invalid or expired OTP', 400));
+      return next(new AppError('الكود غير صالح', 400));
     }
 
     await User.findByIdAndUpdate(userId, { verified: true });
     await OTP.deleteMany({ userId });
 
-    return res.status(200).json({ status: "success", data: { message: 'Phone number verified successfully' } });
+    return res.status(200).json({ status: "success", data: { message: 'تم تفعيل المستخدم بنجاح' } });
   } catch (error) {
-    next(new AppError('Server error during OTP verification', 500));
+    next(new AppError('خطاء فى السيرفر اثناء تفعيل المستخدم', 500));
   }
 };
 
@@ -432,11 +432,11 @@ const verifyOTPAdmin = async (req, res, next) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return next(new AppError('User not found', 404));
+      return next(new AppError('المستخدم غير موجود', 404));
     }
 
     if (user.verified) {
-      return res.status(400).json({ status: 'fail', message: 'User is already verified' });
+      return res.status(400).json({ status: 'fail', message: ' المستخدم تم تفعيله بالفعل' });
     }
 
     const otpRecord = await OTP.findOne({ userId });
@@ -479,16 +479,16 @@ const resendOTP = async (req, res, next) => {
     const user = await User.findById(userId);
 console.log(user)
     if (!user) {
-      return next(new AppError('User not found', 404));
+      return next(new AppError('المستخدم غير موجود', 404));
     }
     if (user.verified) {
-      return next(new AppError('User already verified', 404));
+      return next(new AppError('المستخدم تم تفعيله بالفعل', 404));
     }
     // Check if an OTP was sent in the last 3 minutes
     const lastOTP = await OTP.findOne({ userId }).sort({ createdAt: -1 });
 console.log(lastOTP)
     if (lastOTP && (Date.now() - new Date(lastOTP.createdAt).getTime()) < 3 * 60 * 1000) {
-      return next(new AppError('OTP was already sent within the last 3 minutes. Please wait before requesting a new OTP.', 429));
+      return next(new AppError('الكود تم ارساله الرجاء انتظار 3 دقائق لطلب كود جديد .', 429));
     }
 
     // Remove any previous OTPs for the user
@@ -506,17 +506,17 @@ console.log(lastOTP)
       await sendOTP(user.phoneNumber, otpCode);
     } catch (error) {
       await OTP.deleteMany({ userId: user._id });
-      return next(new AppError('Failed to resend OTP.', 500));
+      return next(new AppError('فشل فى ارسال الكود.', 500));
     }
 
     res.status(200).json({
       status: "success",
       data: {
-        message: 'OTP has been resent successfully valid for 10 minutes.'
+        message: 'تم ارسال الكود بنجاح ومتاح لمدة 10 دقايق.'
       }
     });
   } catch (error) {
-    next(new AppError('Server error during OTP resend', 500));
+    next(new AppError('فشل فى ارسال الكود.', 500));
   }
 };
 
@@ -830,7 +830,7 @@ const loginUser = catchAsync(async (req, res, next) => {
     if (!phoneNumber && !idNumber) {
       await session.abortTransaction();
       session.endSession();
-      return next(new AppError('Phone number or ID number must be provided', 400));
+      return next(new AppError('رقم الهاتف أو رقم الهوية مطلوب', 400));
     }
 
     const query = idNumber 
@@ -841,15 +841,43 @@ const loginUser = catchAsync(async (req, res, next) => {
     if (!user) {
       await session.abortTransaction();
       session.endSession();
-      return next(new AppError('Invalid credentials', 400));
+      return next(new AppError('برجاء التاكد من صحة البيانات', 400));
     }
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
       await session.abortTransaction();
       session.endSession();
-      return next(new AppError('Invalid credentials', 400));
+      return next(new AppError('برجاء التاكد من صحة كلمة المرور', 400));
     }
+
+    if (!user.verified) {
+      await session.abortTransaction();
+      session.endSession();
+      return next(new AppError('Please verify your phone number first', 406));
+    }
+
+    if (user.blocked) {
+      await session.abortTransaction();
+      session.endSession();
+      return next(new AppError('You are blocked', 400));
+    }
+
+    if (!user.approved) {
+      await session.abortTransaction();
+      session.endSession();
+      return next(new AppError('Your account has not been approved by the admin yet', 400));
+    }
+
+
+
+
+
+
+
+
+
+
 
     // Check for prior device login
     if (user.deviceDetails.deviceId && user.deviceDetails.deviceId !== deviceDetails.deviceId) {
@@ -869,7 +897,7 @@ const loginUser = catchAsync(async (req, res, next) => {
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
-    return next(new AppError(`Server error during login: ${error.message}`, 500));
+    return next(new AppError(`خطاء فى السيرفر اثناء تسجل الدخول: ${error.message}`, 500));
   }
 });
 
@@ -902,12 +930,12 @@ const approveUser = async (req, res, next) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return next(new AppError('User not found', 404));
+      return next(new AppError('المستخدم غير موجود', 404));
     }
 
     user.approved = true;
     await user.save();
-    await sendFirebaseNotification(user, 'Your account has been approved','activate your account')
+    await sendFirebaseNotification(user, 'تم الموافقة على حسابك , يمكنك الان استخدام التطبيق بعد تفعيل حاسبك')
     // Send account activation message
     // const activationMessage = 'Your account is now active. Welcome!';
     // try {
@@ -917,7 +945,7 @@ const approveUser = async (req, res, next) => {
     //   return next(new AppError('User approved but failed to send activation message', 500));
     // }
 
-    res.status(200).json({ message: 'User approved successfully and activation message sent' });
+    res.status(200).json({ message: 'تم الموافقة على الحساب ' });
   } catch (error) {
     next(new AppError('Server error during user approval', 500));
   }
@@ -937,13 +965,13 @@ const forgotPassword = async (req, res, next) => {
     const user = await User.findOne({ phoneNumber });
 
     if (!user) {
-      return next(new AppError('User not found', 400));
+      return next(new AppError('المستخدم غير موجود', 400));
     }
 
     // Check if an OTP was sent recently
     const recentOTP = await OTP.findOne({ userId: user._id }).sort({ createdAt: -1 });
     if (recentOTP && (Date.now() - new Date(recentOTP.createdAt).getTime()) < 3 * 60 * 1000) {
-      return next(new AppError('An OTP was sent recently. Please wait a few minutes before requesting a new one.', 400));
+      return next(new AppError('هناك كود تم ارساله بالفعل برجاء انتظار 3 دقائق قبل طلب كود اخر.', 400));
     }
 
     const otpCode = generateOTP();
@@ -954,12 +982,12 @@ const forgotPassword = async (req, res, next) => {
       await sendOTP(user.phoneNumber, otpCode);
     } catch (error) {
       await OTP.deleteMany({ userId: user._id });
-      return next(new AppError('Failed to send OTP. Please try again later.', 500));
+      return next(new AppError('فشل فى ارسال الكود الرجاء المحاولة لاحقا.', 500));
     }
 
-    return res.status(200).json({ status: "success", data: { message: 'OTP sent to your phone number', userId: user._id } });
+    return res.status(200).json({ status: "success", data: { message: 'تم ارسال الكود بنجاح', userId: user._id } });
   } catch (error) {
-    return next(new AppError('Server error', 500));
+    return next(new AppError('خطاء بالسيرفر', 500));
   }
 };
 
@@ -973,19 +1001,19 @@ const resetPassword = async (req, res, next) => {
 
     const otpRecord = await OTP.findOne({ userId, otpCode });
     if (!otpRecord || otpRecord.expiresAt < Date.now()) {
-      return next(new AppError('Invalid or expired OTP', 400));
+      return next(new AppError('او طلب كود اخر كود غير صالح برجاء ادخل الكود الصحيح', 400));
     }
 
     const passwordHash = await bcrypt.hash(newPassword, 10);
     await User.findByIdAndUpdate(userId, { passwordHash });
     await OTP.deleteMany({ userId });
 
-    return res.status(200).json({ message: 'Password reset successfully' });
+    return res.status(200).json({ message: 'تم اعادة تعيين كلمة المرور' });
   } catch (error) {
-    return res.status(500).json({ message: 'Server error', error });
+    return res.status(500).json({ message: 'خطاء فى السيرفر', error });
   }
 };
-
+0
 
 
 

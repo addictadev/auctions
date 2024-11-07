@@ -3,12 +3,12 @@ const { body } = require('express-validator');
 const userValidator = {
 
   register : [
-    body('name').notEmpty().withMessage('Name is required'),
+    body('name').notEmpty().withMessage('برجاء ادخال الاسم'),
     body('email'),
     // body('birthdate').isISO8601().withMessage('Valid birthdate is required'),
-    body('phoneNumber').notEmpty().withMessage('Phone number is required'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
-    body('idNumber').notEmpty().withMessage('ID number is required'),
+    body('phoneNumber').notEmpty().withMessage(' برجاء ادخل رقم الهاتف'),
+    body('password').isLength({ min: 6 }).withMessage(' برجاء ادخال الرقم السري'),
+    body('idNumber').notEmpty().withMessage('برجاء ادخال الرقم القومي'),
     // body('companyname').notEmpty().withMessage('Company name is required'),
     // body('adress').notEmpty().withMessage('Address is required'),
     // body('specialist').notEmpty().withMessage('Specialist field is required')
@@ -18,26 +18,26 @@ login : [
     body('phoneNumber')
       .optional()
       .isMobilePhone()
-      .withMessage('Invalid phone number format'),
+      .withMessage('ادخل رقم هاتف صحيح'),
     body('idNumber')
       .optional()
       .isLength({ max: 14 })
-      .withMessage('ID number must be less than or equal to 14 characters'),
+      .withMessage('الرقم القومى يجب ان يكون 14 رقم'),
     body('password')
       .notEmpty()
-      .withMessage('Password is required')
+      .withMessage(' برجاء ادخال الرقم السري')
   ],
   forgotPassword: [
-    body('email').isEmail().withMessage('Invalid email')
+    body('email').isEmail().withMessage('برجاء ادخال بريد الكترونى صحيح')
   ],
   resetPassword: [
-    body('userId').notEmpty().withMessage('User ID is required'),
-    body('otpCode').notEmpty().withMessage('OTP code is required'),
-    body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+    body('userId').notEmpty().withMessage('رقم المستخدم مطلوب'),
+    body('otpCode').notEmpty().withMessage(' برجاء ادخال كود التفعيل'),
+    body('newPassword').isLength({ min: 6 }).withMessage(' برجاء ادخال الرقم السري')
   ],
   changePassword: [
-    body('currentPassword').notEmpty().withMessage('Current password is required'),
-    body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+    body('currentPassword').notEmpty().withMessage('برجاء ادخال الرقم السري الحالى'),
+    body('newPassword').isLength({ min: 6 }).withMessage('برجاء ادخال الرقم السري الجديد')
   ],
   updateProfile: [
     // body('name').optional().notEmpty().withMessage('Name is required'),

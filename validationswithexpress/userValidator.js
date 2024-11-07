@@ -1,7 +1,7 @@
 const { body } = require('express-validator');
 
 const userValidator = {
-  const register : [
+   register : [
     body('name').notEmpty().withMessage('برجاء ادخال الاسم'),
     body('email'),
     // body('birthdate').isISO8601().withMessage('Valid birthdate is required'),
@@ -13,7 +13,7 @@ const userValidator = {
     // body('companyname').notEmpty().withMessage('Company name is required'),
     // body('adress').notEmpty().withMessage('Address is required'),
     // body('specialist').notEmpty().withMessage('Specialist field is required')
-];
+],
 
   // register : [
   //   body('name').notEmpty().withMessage('برجاء ادخال الاسم'),

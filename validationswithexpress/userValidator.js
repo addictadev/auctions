@@ -7,7 +7,7 @@ const userValidator = {
     // body('birthdate').isISO8601().withMessage('Valid birthdate is required'),
     body('phoneNumber')
         .notEmpty().withMessage(' برجاء ادخل رقم الهاتف')
-        .isLength({ min: 11, max:11 }).withMessage('رقم الهاتف يجب أن يتكون من 11 رقم على الأقل'),
+        .isLength({ min: 12, max:12 }).withMessage('رقم الهاتف يجب أن يتكون من 11 رقم على الأقل'),
     body('password').isLength({ min: 6 }).withMessage(' برجاء ادخال الرقم السري'),
     body('idNumber').notEmpty().withMessage('برجاء ادخال الرقم القومي').isLength({ min: 14, max:14 }).withMessage('رقم القومى يجب أن يتكون من 14 رقم على الأقل'),
     // body('companyname').notEmpty().withMessage('Company name is required'),

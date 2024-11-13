@@ -835,7 +835,9 @@ const loginUser = catchAsync(async (req, res, next) => {
 
     const query = idNumber 
     ? { idNumber } 
-    : { $or: [{ phoneNumber }, { altphoneNumber: phoneNumber }] };
+    : { phoneNumber };
+
+    // : { $or: [{ phoneNumber }, { altphoneNumber: phoneNumber }] };
     const user = await User.findOne(query).select('+passwordHash').session(session);
     
     if (!user) {

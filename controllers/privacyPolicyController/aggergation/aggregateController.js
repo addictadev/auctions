@@ -16,7 +16,7 @@ exports.getAggregateData = catchAsync(async (req, res) => {
 
   const responseData = {
     privacyPolicy: privacyPolicy ? privacyPolicy[language] : null,
-    socialMediaLinks: socialMediaLinks ? socialMediaLinks[language] : null,
+    socialMediaLinks: socialMediaLinks ? socialMediaLinks : null,
     phoneNumbers: phoneNumbers ? phoneNumbers[language] : null,
     appShareLinks: appShareLink ? appShareLink[language] : null
   };

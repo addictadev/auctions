@@ -9,14 +9,14 @@ exports.getAggregateData = catchAsync(async (req, res) => {
 
   const [privacyPolicy, socialMediaLinks, phoneNumbers, appShareLink] = await Promise.all([
     PrivacyPolicy.findOne(),
-    SocialMediaLink.findOne(),
+    SocialMediaLink.find().select(language),
     PhoneNumber.findOne(),
     AppShareLink.findOne()
   ]);
 
   const responseData = {
     privacyPolicy: privacyPolicy ? privacyPolicy[language] : null,
-    socialMediaLinks: socialMediaLinks ? socialMediaLinks[language] : null,
+    socialMediaLinks: socialMediaLinks ? socialMediaLinks : null,
     phoneNumbers: phoneNumbers ? phoneNumbers[language] : null,
     appShareLinks: appShareLink ? appShareLink[language] : null
   };

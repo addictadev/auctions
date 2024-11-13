@@ -183,7 +183,8 @@ const AdminNotification = require('../../models/adminNotificationModel');
 
 const getprocessPayment = factory.getAll(Payment);
 // Helper function to send Firebase notifications
-const sendFirebaseNotification = async (user, title, body) => {
+const sendFirebaseNotification = async (userfcmtoken, title, body) => {
+  const user= await User.findById(userfcmtoken)
   console.log("fmctoken",user.fcmToken)
   console.log("user",user)
 

@@ -16,7 +16,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 
 const localization = require('../middleware/localization');
 
-router.get('/privacy', privacyPolicyController.getAggregateData );
+router.get('/privacy',localization, privacyPolicyController.getAggregateData );
 
 
 

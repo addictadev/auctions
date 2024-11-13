@@ -393,8 +393,8 @@ const approvePayment = async (req, res, next) => {
         // itemId: payment.itemId._id,
         type: 'payment',
       });
-      await notification.save({ session });
       await sendFirebaseNotification(payment.winnerid.userId, `Payment Rejected ${message}`, notification.message);
+      await notification.save({ session });
     } else {
       await session.abortTransaction();
       session.endSession();

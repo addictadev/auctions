@@ -338,7 +338,7 @@ exports.createDeposit = catchAsync(async (req, res, next) => {
       }
 
       user.walletBalance -= amount;
-      user.walletTransactions.push({ amount, type: 'deposit', description: `Deposit for item ${item.name}` });
+      user.walletTransactions.push({ amount, type: 'deposit', description: `مبلغ التامين للوط ${item.name}` });
     }
 
     const deposit = new Deposit({

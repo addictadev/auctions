@@ -1108,7 +1108,7 @@ const checkDepositAndItemStatus = async (socket, next) => {
 console.log(item.subcategoryId._id)
     const deposit = await Deposit.findOne({ userId, item: item.subcategoryId._id, status: 'approved' });
     if (!deposit) {
-      return next(new Error('User has not paid the deposit for this subcategory.'));
+      return next(new Error('يجب سداد التامين الابتدائى للدخول الى المزاد.'));
     }
     // const deposit = await Deposit.findOne({ userId, item: itemId, status: 'approved' });
     // if (!deposit) {
@@ -1118,13 +1118,13 @@ console.log(item.subcategoryId._id)
     // const item = await Item.findById(itemId);
     const now = new Date();
     if (!item) {
-      return next(new Error('Item not found.'));
+      return next(new Error('اللوط غير موجود.'));
     }
     if (item.startDate > now) {
-      return next(new Error('Auction for this item has not started yet.'));
+      return next(new Error('المزاد لم يبداء بعد .'));
     }
     if (item.endDate <= now) {
-      return next(new Error('Auction for this item has ended.'));
+      return next(new Error('المزاد انتهى.'));
     }
     socket.item = item;
     socket.userId = userId;
@@ -2034,8 +2034,8 @@ const createAuctionNamespace = (io) => {
         if (fcmTokens.length > 0) {
           const message = {
             notification: {
-              title: 'New Bid Placed',
-              body: `A new bid of ${amount} has been placed on item ${item.name} in subcategory ${item.subcategoryId.name}`,
+              title: 'مزايدة جديدة',
+              body: `متزايد قام برفع السعر بقيمة ${amount} على لوط ${item.name} بمزاد ${item.subcategoryId.name}`,
             },
             tokens: fcmTokens,
           };

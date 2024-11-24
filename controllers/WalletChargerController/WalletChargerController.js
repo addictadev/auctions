@@ -155,15 +155,15 @@ exports.chargeWallet = catchAsync(async (req, res, next) => {
     const walletCharger = await WalletCharger.create([{ userId, billingMethod, billImage }], { session });
 
     // Send notification to user
-    await Notification.create([{ userId, message: 'You have sent a request for charging.', type: 'wallet' }], { session });
+    await Notification.create([{ userId, message: 'تم ارسال طلب شحن المحفظة', type: 'wallet' }], { session });
 
     // Send notification with Firebase
     const user = await User.findById(userId).select('fcmToken').session(session);
     if (user && user.fcmToken) {
       const message = {
         notification: {
-          title: 'Charging Request',
-          body: 'You have sent a request for charging.',
+          title: 'طلب شحن المحفظة',
+          body: 'تم ارسال طلب شحن المحفظة',
         },
         token: user.fcmToken,
       };
@@ -194,7 +194,7 @@ exports.chargeWallet = catchAsync(async (req, res, next) => {
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
-    return next(new AppError(`Server error during wallet charging: ${error.message}`, 500));
+    return next(new AppError(`حدث خطاء اثناء ارسال الطلب الرجاء اعادة المحاولة : ${error.message}`, 500));
   }
 });
 
@@ -208,7 +208,7 @@ exports.reviewWalletCharger = catchAsync(async (req, res, next) => {
     if (!walletCharger) {
       await session.abortTransaction();
       session.endSession();
-      return res.status(404).json({ status: 'error', message: 'Wallet Charger not found' });
+      return res.status(404).json({ status: 'error', message: 'المحفظة غير موجودة' });
     }
 
     walletCharger.status = status;
@@ -216,7 +216,7 @@ exports.reviewWalletCharger = catchAsync(async (req, res, next) => {
     if (!user) {
       await session.abortTransaction();
       session.endSession();
-      return res.status(404).json({ status: 'error', message: 'User not found' });
+      return res.status(404).json({ status: 'error', message: 'المستخدم غير موجود' });
     }
 
     if (status === 'completed') {
@@ -227,7 +227,7 @@ exports.reviewWalletCharger = catchAsync(async (req, res, next) => {
       user.walletTransactions.push({
         amount,
         type: 'deposit',
-        description: 'Wallet charged by admin',
+        description: 'تم شحن المحفظة من قبل الادمن',
       });
       await user.save({ session, validateBeforeSave: false });
 
@@ -236,7 +236,7 @@ exports.reviewWalletCharger = catchAsync(async (req, res, next) => {
         const message = {
           notification: {
             title: 'Payment Approved',
-            body: `Your payment of amount ${amount} has been approved.`,
+            body: ` تم اضافة رصيد اللى المحفظة بنجاح بمبلغ${amount} .`,
           },
           token: user.fcmToken,
         };
@@ -245,13 +245,13 @@ exports.reviewWalletCharger = catchAsync(async (req, res, next) => {
     }
 
     // Send notification in all cases
-    await Notification.create([{ userId: walletCharger.userId, message: status === 'completed' ? `Your payment of amount ${amount} has been approved.` : 'Your payment has been rejected.', type: 'wallet' }], { session });
+    await Notification.create([{ userId: walletCharger.userId, message: status === 'completed' ? ` تم اضافة رصيد اللى المحفظة بنجاح بمبلغ${amount} .` : 'طلبك لشحن المحفظة رفض', type: 'wallet' }], { session });
 
     if (walletCharger.status !== 'completed' && user && user.fcmToken) {
       const message = {
         notification: {
-          title: 'Payment Status Update',
-          body: `Your payment has been ${status}.`,
+          title: 'حالة طلب شحن المحفظة',
+          body: `طلبك لشحن المحفظة  ${status}.`,
         },
         token: user.fcmToken,
       };
@@ -266,7 +266,7 @@ exports.reviewWalletCharger = catchAsync(async (req, res, next) => {
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
-    return next(new AppError(`Server error during wallet review: ${error.message}`, 500));
+    return next(new AppError(`حدث خطاء فى السيرفر: ${error.message}`, 500));
   }
 });
 

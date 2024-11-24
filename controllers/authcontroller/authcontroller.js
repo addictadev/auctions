@@ -446,9 +446,9 @@ const verifyOTPAdmin = async (req, res, next) => {
     await User.findByIdAndUpdate(userId, { verified: true });
     await OTP.deleteMany({ userId });
 
-    return res.status(200).json({ status: "success", data: { message: 'Phone number verified successfully' } });
+    return res.status(200).json({ status: "success", data: { message: 'تم التحقق من رقم الهاتف بنجاح' } });
   } catch (error) {
-    next(new AppError('Server error during OTP verification', 500));
+    next(new AppError('حدث خطاء اثناء تاكيد كود التحقق ', 500));
   }
 };
 
@@ -1083,20 +1083,20 @@ const changePassword = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return next(new AppError('User not found', 400));
+      return next(new AppError('المستخدم غير موجود', 400));
     }
 
     const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
     if (!isMatch) {
-      return next(new AppError('Invalid current password', 400));
+      return next(new AppError('برجاء التحقق من صحةالبيانات', 400));
     }
 
     const passwordHash = await bcrypt.hash(newPassword, 10);
     await User.findByIdAndUpdate(userId, { passwordHash });
 
-   return res.status(200).json({ message: 'Password changed successfully' });
+   return res.status(200).json({ message: 'تم تغيير كلمة المرور بنجاح' });
   } catch (error) {
-   return res.status(500).json({ message: 'Server error', error });
+   return res.status(500).json({ message: 'حدث خطاء بالسيرفر برجاء المحاولة لاحقا', error });
   }
 };
 
@@ -1115,10 +1115,10 @@ const updateProfile = async (req, res) => {
   const asd=  await User.findByIdAndUpdate(userId, updates, { new: true });
   asd.passwordHash=undefined
     
- return   res.status(200).json({ message: 'Profile updated successfully',data:asd });
+ return   res.status(200).json({ message: 'تم تعديل البيانات بنجاح',data:asd });
   } catch (error) {
     console.log(error)
-   return res.status(500).json({ message: 'Server error', error });
+   return res.status(500).json({ message: 'حدث خطاء بالسيرفر برجاء المحاولة لاحقا', error });
   }
 };
 
@@ -1190,9 +1190,9 @@ const logoutUser = catchAsync(async (req, res, next) => {
       deviceDetails: { deviceId: null, brand: null, model: null, version: null }
     });
 
-    res.status(200).json({ message: 'Logged out successfully.' });
+    res.status(200).json({ message: 'تم تسجيل الخروج بنجاح' });
   } catch (error) {
-    next(new AppError('An error occurred during logout.', 500));
+    next(new AppError('حدث خطاء اثناء تسجيل الخروج', 500));
   }
 });
 
@@ -1212,7 +1212,7 @@ const logoutUser = catchAsync(async (req, res, next) => {
         // Find the user
         const user = await User.findById(id).session(session);
         if (!user) {
-          throw new AppError('User not found', 404);
+          throw new AppError('المستخدم غير موجود', 404);
         }
     
         // Delete bids
@@ -1246,12 +1246,12 @@ const logoutUser = catchAsync(async (req, res, next) => {
         await session.commitTransaction();
         session.endSession();
     
-        res.status(200).json({ message: 'User and associated data deleted successfully.' });
+        res.status(200).json({ message: 'تم حذف حسابك بنجاح ' });
     
       } catch (error) {
         await session.abortTransaction();
         session.endSession();
-        next(new AppError(`An error occurred during user deletion.   ${error}`, 500));
+        next(new AppError(`حدث خطاء اثناء حذف الحساب برجاء اعادة المحاولة   ${error}`, 500));
       }
     };
     

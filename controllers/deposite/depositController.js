@@ -334,7 +334,7 @@ exports.createDeposit = catchAsync(async (req, res, next) => {
     if (billingmethod === 'wallet') {
       if (user.walletBalance < amount) {
         await session.abortTransaction();
-        return next(new AppError('Insufficient balance', 400));
+        return next(new AppError('الرصيد  الموجود فى المحفظة غير كافي برجاء الشحن', 400));
       }
 
       user.walletBalance -= amount;
@@ -354,8 +354,8 @@ exports.createDeposit = catchAsync(async (req, res, next) => {
     await deposit.save({ session });
 
     const notificationMessage = billingmethod === 'wallet'
-      ? `Your deposit of ${amount} for item ${item.name} was successful and approved.`
-      : `Your deposit for item ${item.name} is pending admin approval.`;
+      ? `تم الموافقة على دفع التامين بمبلغ ${amount} للوط ${item.name} .`
+      : `تم ارسال طلب دفع التأمين يمكنك المزايدة بعد التحقق والموافقة على طلب الدفع ${item.name}.`;
 
     const notification = new Notification({
       userId,
@@ -390,7 +390,7 @@ exports.createDeposit = catchAsync(async (req, res, next) => {
     session.endSession();
 
     if (error.code === 11000) {
-      return next(new AppError('Deposit already exists', 400));
+      return next(new AppError('طلب دفع التأمين تم بالفعل', 400));
     }
 
     if (req.body.billingmethod === 'wallet') {
@@ -399,7 +399,7 @@ exports.createDeposit = catchAsync(async (req, res, next) => {
       await user.save({ validateBeforeSave: false });
     }
 
-    return next(new AppError(`Server error during deposit: ${error.message}`, 500));
+    return next(new AppError(`حدث خطاء فى السيرفر : ${error.message}`, 500));
   }
 });
 
@@ -417,11 +417,11 @@ exports.approveDeposit = catchAsync(async (req, res, next) => {
 
     if (!deposit) {
       await session.abortTransaction();
-      return res.status(404).json({ error: 'Deposit not found.' });
+      return res.status(404).json({ error: 'طلب الدفع غير موجود.' });
     }
 
     const user = await User.findById(deposit.userId).session(session);
-    await sendFirebaseNotification(user, 'Deposit Approved', `Your deposit for ${deposit.item.name} has been approved.`);
+    await sendFirebaseNotification(user, 'تم الموافقة على طلب دفع التامين', `تم الموافقة على طلب دفع التامين يمكنك المزايدة الان  ${deposit.item.name}.`);
 
     await session.commitTransaction();
     session.endSession();
@@ -430,7 +430,7 @@ exports.approveDeposit = catchAsync(async (req, res, next) => {
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
-    return next(new AppError(`Server error during deposit approval: ${error.message}`, 500));
+    return next(new AppError(`حدث خطاء فى السيرفر : ${error.message}`, 500));
   }
 });
 
@@ -448,11 +448,11 @@ exports.rejectDeposit = catchAsync(async (req, res, next) => {
 
     if (!deposit) {
       await session.abortTransaction();
-      return res.status(404).json({ error: 'Deposit not found.' });
+      return res.status(404).json({ error: 'طلب دفع التامين غير موجود.' });
     }
 
     const user = await User.findById(deposit.userId).session(session);
-    await sendFirebaseNotification(user, 'Deposit Rejected', `Your deposit for ${deposit.item.name} has been rejected.`);
+    await sendFirebaseNotification(user, 'تم رفض دفع التامين', ` ${deposit.item.name} has been rejected.`);
 
     await session.commitTransaction();
     session.endSession();
@@ -461,7 +461,7 @@ exports.rejectDeposit = catchAsync(async (req, res, next) => {
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
-    return next(new AppError(`Server error during deposit rejection: ${error.message}`, 500));
+    return next(new AppError(`طلب دفع التامين : ${error.message}`, 500));
   }
 });
 
@@ -475,7 +475,7 @@ exports.deleteDeposit = catchAsync(async (req, res, next) => {
 
     if (!deposit) {
       await session.abortTransaction();
-      return res.status(404).json({ error: 'Deposit not found.' });
+      return res.status(404).json({ error: 'طلب دفع التامين غير موجود' });
     }
 
     const user = await User.findById(deposit.userId).session(session);
@@ -489,7 +489,7 @@ exports.deleteDeposit = catchAsync(async (req, res, next) => {
     await session.commitTransaction();
     session.endSession();
 
-    res.status(200).json({ message: 'Deposit deleted successfully.' });
+    res.status(200).json({ message: 'تم حذف طلب التامين بنجاح.' });
   } catch (error) {
     await session.abortTransaction();
     session.endSession();

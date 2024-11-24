@@ -656,7 +656,7 @@ console.log(deposit.amount);
       case 'approve':
         winner.adminApproval = true;
         winner.statusadmin = action;
-        message = 'Your winning bid has been approved.';
+        message = 'مبرووك لقد فزت باللوط بمزاد يمكنك الاناستكمال الدفع والتوجه للاستلام.';
         type='winner';
         if (subcategoryResult && subcategoryResult.results.includes(winner._id)) {
           if (subcategoryResult.results.length > 0) {
@@ -687,7 +687,7 @@ console.log(deposit.amount);
             winner.statusadmin = action;
             // winner.status = action;
             item.status = 'cancelled';
-            message = 'Your winning bid has been rejected or cancelled.';
+            message = 'لم يتم قبول الدفع لخطاء بالبيانات.';
             
             // Remove winner from SubcategoryResult
 
@@ -742,7 +742,7 @@ console.log(deposit.amount);
     if (user.fcmToken) {
       const firebaseMessage = {
         notification: {
-          title: 'Bid Status Update',
+          title: 'حالة الدفع ',
           body: message,
         },
         token: user.fcmToken,

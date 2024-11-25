@@ -1308,7 +1308,7 @@ console.log(deposits);
     if (winnerBid) {
       const winnerNotification = new Notification({
         userId: winnerBid.userId,
-        message: `Congratulations! You have won the auction for item ${item.name} with a bid of ${winnerBid.amount}.`,
+        message: `مبرووك! لقد فزت بلوط ${item.name} بقيمة ${winnerBid.amount}.`,
         itemId: item._id,
         type:'winner'
 
@@ -1316,7 +1316,7 @@ console.log(deposits);
       await winnerNotification.save();
 
       auctionNamespace.to(item._id.toString()).emit('auctionEnded', {
-        message: `Auction for item ${item.name} has ended. Winner: ${winnerBid.userId}, Amount: ${winnerBid.amount}`,
+        message: `المزاد انتهي للوط ${item.name} . الفائز: ${winnerBid.userId}, بقيمة: ${winnerBid.amount}`,
       });
     }
 
@@ -2015,7 +2015,7 @@ const createAuctionNamespace = (io) => {
         const notificationPromises = deposits.map(deposit => {
           const notification = new Notification({
             userId: deposit.userId,
-            message: `A new bid of ${amount} has been placed on item ${item.name} in subcategory ${item.subcategoryId.name}`,
+            message: `متزايد قام برفع السعر بقيمة  ${amount} على لوط ${item.name} بمزاد ${item.subcategoryId.name}`,
             itemId,
             type: 'bid'
           });

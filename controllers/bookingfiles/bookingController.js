@@ -467,7 +467,7 @@ exports.getbookinghistory = async (req, res) => {
     const booking = await features.query.lean();
 
     if (!booking.length) {
-      return res.status(404).json({ message: 'No bookings found' });
+      return res.status(404).json({ message: 'لا يوجد مدفوعات' });
     }
 
     res.status(200).json({ message: 'Booking history', booking });

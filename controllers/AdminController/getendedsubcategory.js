@@ -656,7 +656,7 @@ console.log(deposit.amount);
       case 'approve':
         winner.adminApproval = true;
         winner.statusadmin = action;
-        message =` مبرووك لقد فزت باللوط ${winner.itemId.name} بمزاد ${winner.subcategory.name} يمكنك الاناستكمال الدفع والتوجه للاستلام.`;
+        message =` مبرووك لقد فزت  ${winner.itemId.name} , بمزاد ${winner.subcategory.name} يمكنك الاناستكمال الدفع والتوجه للاستلام.`;
         type='winner';
         if (subcategoryResult && subcategoryResult.results.includes(winner._id)) {
           if (subcategoryResult.results.length > 0) {
@@ -687,7 +687,7 @@ console.log(deposit.amount);
             winner.statusadmin = action;
             // winner.status = action;
             item.status = 'cancelled';
-            message = `لم يتم قبول السعر للوط ${winner.itemId.name}بمزاد ${winner.subcategory.name}`;
+            message = `لم يتم قبول السعر  ${winner.itemId.name} , بمزاد ${winner.subcategory.name}`;
             
             // Remove winner from SubcategoryResult
 

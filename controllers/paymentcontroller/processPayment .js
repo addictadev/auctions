@@ -416,12 +416,13 @@ const approvePayment = async (req, res, next) => {
       payment.status = 'completed';
       const notification = new Notification({
         userId: payment.winnerid.userId._id,
-        message: `مبرووك تم تاكيد استكمال الدفع لمزاد ${subcategoryName} بمبلغ ${payment.winnerid.totalAmount} يمكنك الاستلام الان:${message}.`,
+        message: `مبرووك تم تاكيد استكمال الدفع لمزاد ${subcategoryName} بمبلغ ${payment.winnerid.totalAmount} يمكنك الاستلام الان  :  
+        ${message}.`,
         // itemId: payment.itemId._id,
         type: 'payment',
       });
       await notification.save({ session });
-      await sendFirebaseNotification(payment.winnerid.userId, `تم تاكيد استكمال الدفع بنجاح:${message}`, notification.message);
+      await sendFirebaseNotification(payment.winnerid.userId, `تاكيد استكمال الدفع`, notification.message);
     } else if (action === 'reject') {
      await Payment.findByIdAndDelete(paymentId)    
       

@@ -395,7 +395,7 @@ const verifyOTP = async (req, res, next) => {
     await User.findByIdAndUpdate(userId, { verified: true });
     await OTP.deleteMany({ userId });
 
-    return res.status(200).json({ status: "success", data: { message: 'تم تفعيل المستخدم بنجاح' } });
+    return res.status(200).json({ status: "success", data: { message: "تم التحقق من رقم الهاتف بنجاح'" } });
   } catch (error) {
     next(new AppError('خطاء فى السيرفر اثناء تفعيل المستخدم', 500));
   }

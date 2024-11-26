@@ -362,7 +362,7 @@ const registerUser = async (req, res, next) => {
     res.status(201).json({
       status: "success",
       data: {
-        message: 'تم ارسال رمز التحقق برجاء (OTP) الانتظار دقائق لحين وصوله اليك',
+        message: 'تم ارسال رمز التحقق (OTP) برجاء الانتظار دقائق لحين وصوله اليك',
         userId: newUser._id
       }
     });
@@ -436,7 +436,7 @@ const verifyOTPAdmin = async (req, res, next) => {
     }
 
     if (user.verified) {
-      return res.status(400).json({ status: 'fail', message: ' المستخدم تم تفعيله بالفعل' });
+      return res.status(400).json({ status: 'fail', message: ' تم التحقق من رقم الهاتف بنجاح' });
     }
 
     const otpRecord = await OTP.findOne({ userId });
@@ -936,7 +936,7 @@ const approveUser = async (req, res, next) => {
 
     user.approved = true;
     await user.save();
-    await sendFirebaseNotification(user, '✅تم الموافقة على حسابك حسابك نشط الأن')
+    await sendFirebaseNotification(user, 'تم  الموافقة على حسابك حسابك نشط الأن✅'  )
     // Send account activation message
     // const activationMessage = 'Your account is now active. Welcome!';
     // try {

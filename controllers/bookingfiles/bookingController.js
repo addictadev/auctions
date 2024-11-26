@@ -422,7 +422,7 @@ exports.rejectBooking = async (req, res) => {
     const { id: bookingId } = req.params;
     const booking = await Booking.findByIdAndUpdate(
       bookingId,
-      { status: 'rejected', seenByadmin: true },
+      { status: 'pending', seenByadmin: true },
       { new: true, session }
     );
 

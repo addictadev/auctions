@@ -227,7 +227,7 @@ exports.reviewWalletCharger = catchAsync(async (req, res, next) => {
       user.walletTransactions.push({
         amount,
         type: 'deposit',
-        description: 'تم شحن المحفظة من قبل الادمن',
+        description: "شحن رصيد الى المحفظة",
       });
       await user.save({ session, validateBeforeSave: false });
 

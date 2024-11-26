@@ -424,7 +424,7 @@ exports.approveDeposit = catchAsync(async (req, res, next) => {
     ).populate('item');
     const itemName = depositaa.item ? depositaa.item.name : 'Unknown Item';
     const user = await User.findById(deposit.userId).session(session);
-    await sendFirebaseNotification(user, `مدفوعات التامين`, ` تم الموافقة على طلب دفع التامين يمكنك المزايدة الان لمزاد ${itemName.item.name}.`);
+    await sendFirebaseNotification(user, `مدفوعات التامين`, ` تم الموافقة على طلب دفع التامين يمكنك المزايدة الان لمزاد ${itemName}.`);
 
     await session.commitTransaction();
     session.endSession();

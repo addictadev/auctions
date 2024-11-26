@@ -431,6 +431,7 @@ exports.approveDeposit = catchAsync(async (req, res, next) => {
 
     res.status(200).json(deposit);
   } catch (error) {
+    console.log(error)
     await session.abortTransaction();
     session.endSession();
     return next(new AppError(`حدث خطاء فى السيرفر : ${error.message}`, 500));

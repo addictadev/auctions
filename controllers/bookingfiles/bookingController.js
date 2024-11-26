@@ -365,6 +365,7 @@ exports.bookFile = async (req, res, next) => {
     res.status(201).json({ message: 'طلب شراء كراسة الشروط تم الارسال بنجاح', booking: newBooking });
   } catch (error) {
     await session.abortTransaction();
+    console.log(error)
     session.endSession();
     next(new AppError(error.message, 500));
   }

@@ -389,9 +389,9 @@ exports.createDeposit = catchAsync(async (req, res, next) => {
     await session.abortTransaction();
     session.endSession();
 
-    if (error.code === 11000) {
-      return next(new AppError('طلب دفع التأمين تم بالفعل', 400));
-    }
+    // if (error.code === 11000) {
+    //   return next(new AppError('طلب دفع التأمين تم بالفعل', 400));
+    // }
 
     if (req.body.billingmethod === 'wallet') {
       user.walletBalance += req.item.deposit;

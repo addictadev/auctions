@@ -632,7 +632,7 @@ exports.adminActionOnWinner = async (req, res) => {
   }
 
   try {
-    const winner = await Winner.findById(winnerId).populate('userId').populate('itemId');
+    const winner = await Winner.findById(winnerId).populate('userId').populate('itemId').populate('subcategory');
     if (!winner) {
       return res.status(404).json({ status: 'error', message: 'Winner not found' });
     }
@@ -687,7 +687,7 @@ console.log(deposit.amount);
             winner.statusadmin = action;
             // winner.status = action;
             item.status = 'cancelled';
-            message = 'لم يتم قبول الدفع لخطاء بالبيانات.';
+            message = `لم يتم قبول السعر للوط ${winner.itemId.name}بمزاد ${winner.subcategory.name}`;
             
             // Remove winner from SubcategoryResult
 

@@ -338,7 +338,7 @@ exports.createDeposit = catchAsync(async (req, res, next) => {
       }
 
       user.walletBalance -= amount;
-      user.walletTransactions.push({ amount, type: 'deposit', description: `مبلغ التامين للوط ${item.name}` });
+      user.walletTransactions.push({ amount, type: 'withdrawal', description: `مبلغ التامين لمزاد ${item.name}` });
     }
 
     const deposit = new Deposit({
@@ -354,7 +354,7 @@ exports.createDeposit = catchAsync(async (req, res, next) => {
     await deposit.save({ session });
 
     const notificationMessage = billingmethod === 'wallet'
-      ? `تم الموافقة على دفع التامين بمبلغ ${amount} للوط ${item.name} .`
+      ? `تم الموافقة على دفع التامين بمبلغ ${amount} لمزاد ${item.name} .`
       : `تم ارسال طلب دفع التأمين يمكنك المزايدة بعد التحقق والموافقة على طلب الدفع ${item.name}.`;
 
     const notification = new Notification({

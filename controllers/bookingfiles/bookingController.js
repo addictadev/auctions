@@ -349,7 +349,7 @@ exports.bookFile = async (req, res, next) => {
     await sendFirebaseNotification(user, 'طلب كراسة الشروط', notificationMessage);
     await notification.save({ session });
     const adminNotificationMessage = billingmethod === 'wallet'
-      ? `New booking approved for ${req.item.name} by user ${userId}.`
+      ? `New booking approved for ${req.item.name} by user ${user.phoneNumber}.`
       : `New booking for ${req.item.name} requires approval.`;
 
     const adminNotification = new AdminNotification({

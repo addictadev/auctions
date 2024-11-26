@@ -295,11 +295,11 @@ exports.bookFile = async (req, res, next) => {
 
     // Check for duplicate booking
     const existingBooking = await Booking.findOne({ userId, item: itemId ,billingmethod});
-    if (existingBooking) {
-      await session.abortTransaction();
-      session.endSession();
-      return next(new AppError('طلب شراء الكراسة موجود بالفعل', 400));
-    }
+    // if (existingBooking) {
+    //   await session.abortTransaction();
+    //   session.endSession();
+    //   return next(new AppError('طلب شراء الكراسة موجود بالفعل', 400));
+    // }
 
     const newBooking = new Booking({
       userId,
@@ -338,7 +338,6 @@ exports.bookFile = async (req, res, next) => {
     const notificationMessage = billingmethod === 'wallet'
       ? `تم شراء كراسة الشروط ${req.item.name}.`
       : `تم ارسال طلب شراء كراسة شروط مزاد ${req.item.name}`;
-
     const notification = new Notification({
       userId,
       message: notificationMessage,
@@ -443,7 +442,7 @@ exports.rejectBooking = async (req, res) => {
     await notification.save({ session });
 
     const user = await User.findById(booking.userId).session(session);
-    await sendFirebaseNotification(user, "كراسة الشروط", `تم رفض طلب شراء كراشة الشروط لوجود خطأ بالبيانات برجاء اعادةالمحاولة ${populatedBooking.item.name}`);
+    await sendFirebaseNotification(user, "كراسة الشروط", `تم رفض طلب شراء كراسة الشروط لوجود خطأ بالبيانات برجاء اعادةالمحاولة ${populatedBooking.item.name}`);
 
     await session.commitTransaction();
     session.endSession();

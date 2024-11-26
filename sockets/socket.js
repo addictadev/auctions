@@ -2015,7 +2015,7 @@ const createAuctionNamespace = (io) => {
         const notificationPromises = deposits.map(deposit => {
           const notification = new Notification({
             userId: deposit.userId,
-            message: `متزايد قام برفع السعر بقيمة  ${amount} على لوط ${item.name} بمزاد ${item.subcategoryId.name}`,
+            message: `متزايد قام برفع السعر بقيمة  ${amount} على  ${item.name} بمزاد ${item.subcategoryId.name}`,
             itemId,
             type: 'bid'
           });

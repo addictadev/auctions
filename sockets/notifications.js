@@ -2450,7 +2450,7 @@ const processEndingSubcategories = async (now, notificationNamespace, session) =
         const message = {
           notification: {
             title: 'المزاد انتهى',
-            body: `انتهى مزاد ${subcategory.name} وجارى اعتماد الاسعار للتريسة.`,
+            body: `انتهى مزاد ${subcategory.name} وجارى اعتماد الاسعار للترسية.`,
           },
           tokens: fcmTokens,
         };
@@ -2624,32 +2624,32 @@ const handleWinner = async (item, winnerBid, subcategory, notificationNamespace,
   }
 
   // Notify the winner if they haven't been notified yet
-  if (!item.notifiedWinner) {
-    const winnerNotification = new Notification({
-      userId: winnerBid.userId,
-      message: `مبرووك لقد فزت باللوط ${item.name} بمزاد  ${subcategory.name} بسعر ${winnerBid.amount}.`,
-      itemId: item._id,
-      type: 'winner'
-    });
-    await winnerNotification.save({ session });
+  // if (!item.notifiedWinner) {
+  //   const winnerNotification = new Notification({
+  //     userId: winnerBid.userId,
+  //     message: `مبرووك لقد فزت باللوط ${item.name} بمزاد  ${subcategory.name} بسعر ${winnerBid.amount}.`,
+  //     itemId: item._id,
+  //     type: 'winner'
+  //   });
+  //   await winnerNotification.save({ session });
 
     // Emit notification to the user's socket channel
-    notificationNamespace.to(`user_${winnerBid.userId}`).emit('notification', {
-      message: `مبرووك لقد فزت باللوط  ${item.name} بمزاد ${subcategory.name} بسعر ${winnerBid.amount}.`,
-    });
+    // notificationNamespace.to(`user_${winnerBid.userId}`).emit('notification', {
+    //   message: `مبرووك لقد فزت باللوط  ${item.name} بمزاد ${subcategory.name} بسعر ${winnerBid.amount}.`,
+    // });
 
     // If the user has an FCM token, send a push notification
     const user = await User.findById(winnerBid.userId).session(session);
-    if (user && user.fcmToken) {
-      const message = {
-        notification: {
-          title: 'لقد فزت!',
-          body: `مبرووك لقد فزت باللوط ${item.name} بمزاد ${subcategory.name} بسعر ${winnerBid.amount}.`,
-        },
-        token: user.fcmToken,
-      };
-      // await admin.messaging().send(message);
-    }
+    // if (user && user.fcmToken) {
+    //   const message = {
+    //     notification: {
+    //       title: 'لقد فزت!',
+    //       body: `مبرووك لقد فزت باللوط ${item.name} بمزاد ${subcategory.name} بسعر ${winnerBid.amount}.`,
+    //     },
+    //     token: user.fcmToken,
+    //   };
+    //   // await admin.messaging().send(message);
+    // }
 
     // Create a Winner entry in the database
     const winnerEntry = new Winner({
@@ -2909,7 +2909,7 @@ const handleLosers = async (item, winnerBid, subcategory, notificationNamespace,
         user.walletTransactions.push({
           amount: deposit.amount,
           type: 'refund',
-          description: `Refund for item ${item.name} in subcategory ${subcategory.name}`,
+          description: `استرداد باقى التامين  ${item.name} فى مزاد ${subcategory.name}`,
         });
 
         deposit.status = 'refunded';
@@ -2927,14 +2927,14 @@ const handleLosers = async (item, winnerBid, subcategory, notificationNamespace,
       await loserEntry.save({ session });
 
       notificationNamespace.to(`user_${deposit.userId._id}`).emit('notification', {
-        message: `تم انتهاء الللوط ${item.name} بمزاد ${subcategory.name} انتهى الان. وتم استرداد مبلغ التامين الى المحفظة .`,
+        message: `انتهى المزاد  ${subcategory.name} وجارى اعتماد الاسعار للترسية.`,
       });
 
       if (user && user.fcmToken) {
         const message = {
           notification: {
             title: 'انتهي المزاد',
-            body: `تم انتهاء المزاد   ${subcategory.name} انتهى الان. وتم استرداد مبلغ التامين الى المحفظة.`,
+            body: `انتهى المزاد  ${subcategory.name} وجارى اعتماد الاسعار للترسية.`,
           },
           token: user.fcmToken,
         };

@@ -1305,20 +1305,20 @@ const checkAuctionEnd = async () => {
     const winnerBid = bids[0];
     const deposits = await Deposit.find({ item: item._id, status: 'approved' });
 console.log(deposits);
-    if (winnerBid) {
-      const winnerNotification = new Notification({
-        userId: winnerBid.userId,
-        message: `مبرووك! لقد فزت بلوط ${item.name} بقيمة ${winnerBid.amount}.`,
-        itemId: item._id,
-        type:'winner'
+    // if (winnerBid) {
+    //   const winnerNotification = new Notification({
+    //     userId: winnerBid.userId,
+    //     message: `مبرووك! لقد فزت بلوط ${item.name} بقيمة ${winnerBid.amount}.`,
+    //     itemId: item._id,
+    //     type:'winner'
 
-      });
-      await winnerNotification.save();
+    //   });
+    //   await winnerNotification.save();
 
-      auctionNamespace.to(item._id.toString()).emit('auctionEnded', {
-        message: `المزاد انتهي للوط ${item.name} . الفائز: ${winnerBid.userId}, بقيمة: ${winnerBid.amount}`,
-      });
-    }
+    //   auctionNamespace.to(item._id.toString()).emit('auctionEnded', {
+    //     message: `المزاد انتهي للوط ${item.name} . الفائز: ${winnerBid.userId}, بقيمة: ${winnerBid.amount}`,
+    //   });
+    // }
 
     const endNotifications = deposits.map(deposit => {
       const notification = new Notification({

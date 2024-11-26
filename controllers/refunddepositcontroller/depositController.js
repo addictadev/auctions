@@ -69,6 +69,7 @@ const refundDeposit = async (req, res) => {
       }
   
       // Process refund for each deposit
+      const subcategory = await Subcategory.findById(subcategoryId).session(session);
       for (const deposit of deposits) {
         deposit.status = 'refunded not join'; // Update the deposit status to "refunded not join"
         await deposit.save();
@@ -80,7 +81,7 @@ const refundDeposit = async (req, res) => {
         deposit.userId.walletTransactions.push({
           amount: deposit.amount,
           type: 'refund',
-          description: `Refunded deposit for subcategory ${subcategoryId}`, // Log a descriptive transaction message
+          description: ` تم رد تأمين مزاد ${subcategory?.name} بمبلغ ${deposit.amount} الى المحفظة`, // Log a descriptive transaction message
           timestamp: new Date(), // Store the time of refund
         });
   
@@ -88,7 +89,7 @@ const refundDeposit = async (req, res) => {
         await deposit.userId.save();
   
         // Send a notification to the user about the refund
-        await sendFirebaseNotification(deposit.userId, 'Refund Processed', 'Your deposit has been refunded.');
+        await sendFirebaseNotification(deposit.userId, 'استرداد التأمين ', ` تم رد تأمين مزاد ${subcategory?.name} بمبلغ ${deposit.amount} الى المحفظة`);
       }
   
       // Send success response back to admin

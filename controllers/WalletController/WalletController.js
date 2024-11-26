@@ -152,7 +152,7 @@ exports.addToWallet = async (req, res) => {
     });
     await transaction.save({ session });
     await session.commitTransaction();
-    await sendFirebaseNotification(user, 'اضافة رصيد', `نم اضافة مبلغ ${amount} الى رصيدك بالمحفظة`);
+    await sendFirebaseNotification(user, 'اضافة رصيد', `تم اضافة مبلغ ${amount} الى رصيدك بالمحفظة`);
 
     session.endSession();
 

@@ -337,7 +337,7 @@ exports.bookFile = async (req, res, next) => {
 
     const notificationMessage = billingmethod === 'wallet'
       ? `تم شراء كراسة الشروط ${req.item.name}.`
-      : `تم ارسال الطلب يمكنك الاطلاع على كراسة الشروط بعد التحقق والموافقة على طلب الشراء${req.item.name} `;
+      : `تم ارسال طلب شراء كراسة شروط مزاد ${req.item.name}`;
 
     const notification = new Notification({
       userId,

@@ -355,7 +355,7 @@ exports.createDeposit = catchAsync(async (req, res, next) => {
 
     const notificationMessage = billingmethod === 'wallet'
       ? `تم الموافقة على دفع التامين بمبلغ ${amount} لمزاد ${item.name} .`
-      : `تم ارسال طلب دفع التأمين يمكنك المزايدة بعد التحقق والموافقة على طلب الدفع ${item.name}.`;
+      : `  تم ارسال طلب دفع التأمين مزاد ${item.name}.`;
 
     const notification = new Notification({
       userId,
@@ -451,8 +451,12 @@ exports.rejectDeposit = catchAsync(async (req, res, next) => {
       return res.status(404).json({ error: 'طلب دفع التامين غير موجود.' });
     }
 
+    const depositaa = await Deposit.findById(
+      depositId
+    ).populate('item');
+    const itemName = depositaa.item ? depositaa.item.name : 'Unknown Item';
     const user = await User.findById(deposit.userId).session(session);
-    await sendFirebaseNotification(user, 'تم رفض دفع التامين', ` ${deposit.item.name} has been rejected.`);
+    await sendFirebaseNotification(user, `مدفوعات التامين`, ` تم رفض طلب دفع التامين لوجود خطاء بالبيانات برجاء اعادة المحاولة لمزاد ${itemName}`);
 
     await session.commitTransaction();
     session.endSession();

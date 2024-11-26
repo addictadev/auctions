@@ -401,7 +401,7 @@ exports.approveBooking = async (req, res) => {
     await notification.save({ session });
 
     const user = await User.findById(booking.userId).session(session);
-    await sendFirebaseNotification(user, `تم تاكيد شراء كراسة الشروط`, `تم تاكيد شراء كراسة الشروط يمكنك الاطلاع والمعاينة الأن ${populatedBooking.item.name} `);
+    await sendFirebaseNotification(user, 'شراء كراسة الشروط', ` تم تاكيد شراء كراسة الشروط يمكنك الاطلاع والمعاينة الأن لمزاد ${populatedBooking.item.name} `);
 
     await session.commitTransaction();
     session.endSession();

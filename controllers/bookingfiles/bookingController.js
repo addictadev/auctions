@@ -386,17 +386,18 @@ exports.approveBooking = async (req, res) => {
       session.endSession();
       return res.status(404).json({ message: 'Booking not found' });
     }
-
+    const populatedBooking = await Booking.findById(bookingId).populate('item');
+    
     const notification = new Notification({
       userId: booking.userId,
       message: 'تم تاكيد شراء كراسة الشروط يمكنك الاطلاع والمعاينة لان',
-      itemId: booking.item,
+      itemId: populatedBooking.item,
       type: 'bookingfiles',
     });
     await notification.save({ session });
 
     const user = await User.findById(booking.userId).session(session);
-    await sendFirebaseNotification(user, `تم تاكيد شراء كراسة الشروط يمكنك الاطلاع والمعاينة الان`, `تم تاكيد شراء كراسة الشروط يمكنك الاطلاع والمعاينة لان ${booking.item.name} `);
+    await sendFirebaseNotification(user, `تم تاكيد شراء كراسة الشروط`, `تم تاكيد شراء كراسة الشروط يمكنك الاطلاع والمعاينة الأن ${populatedBooking.item.name} `);
 
     await session.commitTransaction();
     session.endSession();

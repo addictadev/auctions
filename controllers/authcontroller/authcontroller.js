@@ -868,7 +868,7 @@ const loginUser = catchAsync(async (req, res, next) => {
     if (!user.approved) {
       await session.abortTransaction();
       session.endSession();
-      return next(new AppError('حسابك ما زال غير معتمد من قبل المسئول ', 400));
+      return next(new AppError('يجري الأن المراجعة والتحقق من بيانات الدخول', 400));
     }
 
 
@@ -936,7 +936,7 @@ const approveUser = async (req, res, next) => {
 
     user.approved = true;
     await user.save();
-    await sendFirebaseNotification(user, 'تم الموافقة على حسابك , يمكنك الان استخدام التطبيق بعد تفعيل حاسبك')
+    await sendFirebaseNotification(user, 'تم الموافقة على حسابك حسابك نشط الأن')
     // Send account activation message
     // const activationMessage = 'Your account is now active. Welcome!';
     // try {

@@ -73,7 +73,7 @@ exports.withdrawFromWallet = async (req, res) => {
     user.walletTransactions.push({
       amount: -amount,
       type: 'withdrawal',
-      description: 'Admin withdrawal',
+      description: 'سحب رصيد من المحفظة',
       timestamp: new Date()
     });
     await user.save({ session });
@@ -122,7 +122,7 @@ exports.addToWallet = async (req, res) => {
     user.walletTransactions.push({
       amount,
       type: 'deposit',
-      description: 'Admin deposit',
+      description: 'تم شحن رصيد الى المحفظة',
       timestamp: new Date()
     });
     await user.save({ session });
@@ -138,13 +138,13 @@ exports.addToWallet = async (req, res) => {
 
     const notification = new Notification({
       userId: user._id,
-      message: 'Deposit remaining balance refunded',
+      message: 'تم استرداد الرصيد المتبقي من التامين',
       itemId: null,
       type: 'admin deposit ',
     });
     await transaction.save({ session });
     await session.commitTransaction();
-    await sendFirebaseNotification(user, 'Deposit remaining balance refunded', `Your deposit for has been refunded.`);
+    await sendFirebaseNotification(user, 'تم استرداد الرصيد المتبقي من التامين', `لقد تم استرداد التامين الخاصة بك.`);
 
     session.endSession();
 

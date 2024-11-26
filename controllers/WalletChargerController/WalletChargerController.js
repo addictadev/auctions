@@ -158,7 +158,7 @@ exports.chargeWallet = catchAsync(async (req, res, next) => {
     await Notification.create([{ userId, message: 'تم ارسال طلب شحن المحفظة', type: 'wallet' }], { session });
 
     // Send notification with Firebase
-    const user = await User.findById(userId).select('fcmToken').session(session);
+    const user = await User.findById(userId).select('fcmToken phoneNumber').session(session);
     if (user && user.fcmToken) {
       const message = {
         notification: {
@@ -179,7 +179,7 @@ exports.chargeWallet = catchAsync(async (req, res, next) => {
       console.error('User FCM token not found or invalid');
       // Handle the case where the user's FCM token is missing or invalid
     }
-    const adminNotificationMessage = `تم تقديم طلب شحن المحفظة من قبل المستخدم ${userId}.`;
+    const adminNotificationMessage = `تم تقديم طلب شحن المحفظة من قبل المستخدم ${user.phoneNumber}.`;
     const adminNotification = new AdminNotification({
       userId,
       title: 'طلب شحن المحفظة',
@@ -235,8 +235,8 @@ exports.reviewWalletCharger = catchAsync(async (req, res, next) => {
       if (user && user.fcmToken) {
         const message = {
           notification: {
-            title: 'Payment Approved',
-            body: ` تم اضافة رصيد اللى المحفظة بنجاح بمبلغ${amount} .`,
+            title: 'تم موافقة على طلب الدفع',
+            body: `تم اضافة الرصيد الى المحفظة بمبلغ${amount}بنجاح .`,
           },
           token: user.fcmToken,
         };

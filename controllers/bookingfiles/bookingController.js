@@ -442,7 +442,7 @@ exports.rejectBooking = async (req, res) => {
     await notification.save({ session });
 
     const user = await User.findById(booking.userId).session(session);
-    await sendFirebaseNotification(user, "كراسة الشروط", `تم رفض طلب شراء كراسة الشروط لوجود خطأ بالبيانات برجاء اعادةالمحاولة ${populatedBooking.item.name}`);
+    await sendFirebaseNotification(user, "كراسة الشروط", `تم رفض طلب شراء كراسة الشروط لوجود خطأ بالبيانات برجاء اعادة المحاولة ${populatedBooking.item.name}`);
 
     await session.commitTransaction();
     session.endSession();

@@ -2472,14 +2472,14 @@ const processEndingSubcategories = async (now, notificationNamespace, session) =
       const endNotifications = depositsForNotifications.map(async (deposit) => {
         const auctionEnded = new Notification({
           userId: deposit.userId,
-          message: `انتهى المزاد ${subcategory.name} وجارى اعتماد الاسعار للتريسة.`,
+          message: `انتهى المزاد ${subcategory.name} وجارى اعتماد الاسعار للترسية.`,
           itemId: subcategory._id,
           type: 'auction'
         });
         await auctionEnded.save({ session });
 
         notificationNamespace.to(`user_${deposit.userId._id}`).emit('notification', {
-          message: `انتهى المزاد  ${subcategory.name} وجارى اعتماد الاسعار للتريسة.`,
+          message: `انتهى المزاد  ${subcategory.name} وجارى اعتماد الاسعار للترسية.`,
         });
       });
 

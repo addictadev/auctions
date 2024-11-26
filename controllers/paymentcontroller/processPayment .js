@@ -305,6 +305,7 @@ const processPayment = async (req, res, next) => {
 
     res.status(201).json({ status: 'success', data: payment });
   } catch (error) {
+    console.log(error)
     await session.abortTransaction();
     session.endSession();
     if (error.code === 11000) {

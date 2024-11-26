@@ -257,7 +257,7 @@ const processPayment = async (req, res, next) => {
       }
 
       user.walletBalance -= dueAmount;
-      user.walletTransactions.push({ amount: dueAmount, type: 'payment', description: `Payment for item ${item.name}` });
+      user.walletTransactions.push({ amount: dueAmount, type: 'payment', description: `طلب استكمال الدفع ${item.name}` });
       await user.save({ session, validateBeforeSave: false });
     }
 

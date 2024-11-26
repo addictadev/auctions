@@ -145,7 +145,9 @@ const authMiddleware = catchAsync(async (req, res, next) => {
   if (currentUser.deviceDetails.deviceId !== headerDeviceId) {
     return next(new AppError('تم تسجيل الخروج , بسبب تسجيل الدخول من جهاز اخر ', 401));
   }
-
+  if (currentUser.blocked) {
+    return next(new AppError('تم حظر حسابك يرجى التواصل مع المسئول', 401));
+  }
   req.user = currentUser; // Grant access to the protected route
   next();
 });

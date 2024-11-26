@@ -403,15 +403,15 @@ const approvePayment = async (req, res, next) => {
       return res.status(400).json({ message: 'Invalid payment or payment is not pending.' });
     }
    
-    const subcategory = await subcategory.findById(subcategoryId).select('name').session(session);
+    const subcategorya = await subcategory.findById(subcategoryId).select('name').session(session);
 
-    if (!subcategory) {
+    if (!subcategorya) {
       await session.abortTransaction();
       session.endSession();
       return res.status(400).json({ message: 'Subcategory not found.' });
     }
 
-    const subcategoryName = subcategory.name;
+    const subcategoryName = subcategorya.name;
     if (action === 'approve') {
       payment.status = 'completed';
       const notification = new Notification({

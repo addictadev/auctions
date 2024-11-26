@@ -766,7 +766,7 @@ console.log(deposit.amount);
     await Notification.create({
       userId: user._id,
       message,
-      type
+      type:'reject'
     });
 
     res.status(200).json({

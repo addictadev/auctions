@@ -936,7 +936,7 @@ const approveUser = async (req, res, next) => {
 
     user.approved = true;
     await user.save();
-    await sendFirebaseNotification(user, 'تم  الموافقة على حسابك حسابك نشط الأن✅'  )
+    await sendFirebaseNotification(user, 'تم الموافقة على حسابك','     حسابك نشط الأن ✅ '  )
     // Send account activation message
     // const activationMessage = 'Your account is now active. Welcome!';
     // try {

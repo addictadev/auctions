@@ -64,7 +64,7 @@ exports.getCategory = async (req, res) => {
 
         const deposit = await Deposit.findOne({ userId: userId, item: id }).sort({ createdAt: -1 });
         if (deposit) {
-          if (deposit.status != 'pending') {
+          if (deposit.status != 'rejected') {
             // depositStatus = false;
           depositStatus = deposit.status;
 

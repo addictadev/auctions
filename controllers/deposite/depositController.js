@@ -442,7 +442,7 @@ exports.rejectDeposit = catchAsync(async (req, res, next) => {
     const { depositId } = req.params;
     const deposit = await Deposit.findByIdAndUpdate(
       depositId,
-      { status: 'pending', seenByadmin: true, seenByuser: false },
+      { status: 'rejected', seenByadmin: true, seenByuser: false },
       { new: true, session }
     );
 

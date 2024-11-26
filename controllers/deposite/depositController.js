@@ -367,7 +367,7 @@ exports.createDeposit = catchAsync(async (req, res, next) => {
     await sendFirebaseNotification(user, 'طلب دفع التامين', notificationMessage);
     await notification.save({ session });
     const adminNotificationMessage = billingmethod === 'wallet'
-      ? `تمت الموافقة على إيداع بمبلغ ${amount} للبند ${item.name} من المستخدم ${userId}.`
+      ? `تمت الموافقة على إيداع بمبلغ ${amount} للبند ${item.name} من المستخدم ${user.phoneNumber}.`
       : `تم تقديم طلب إيداع للبند ${item.name} ويتطلب موافقة الإدارة.`;
 
     const adminNotification = new AdminNotification({

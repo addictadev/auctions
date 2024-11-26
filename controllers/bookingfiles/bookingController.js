@@ -435,7 +435,7 @@ exports.rejectBooking = async (req, res) => {
 
     const notification = new Notification({
       userId: booking.userId,
-      message: `تم رفض طلب شراء كراسة الشروط لوجود خطأ بالبيانات برجاء اعادةالمحاولة ${populatedBooking.item.name}`,
+      message: ` تم رفض طلب شراء كراسة الشروط لوجود خطأ بالبيانات برجاء اعادة المحاولة ${populatedBooking.item.name}`,
       itemId: booking.item,
       type: 'bookingfiles',
     });

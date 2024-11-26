@@ -64,7 +64,11 @@ exports.getCategory = async (req, res) => {
 
         const deposit = await Deposit.findOne({ userId: userId, item: id }).sort({ createdAt: -1 });
         if (deposit) {
+          if (deposit.status != 'pending') {
+            // depositStatus = false;
           depositStatus = deposit.status;
+
+          }
         }
       } else {
         // User has no approved booking or no booking at all

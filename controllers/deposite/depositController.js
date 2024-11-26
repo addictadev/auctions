@@ -456,7 +456,7 @@ exports.rejectDeposit = catchAsync(async (req, res, next) => {
     ).populate('item');
     const itemName = depositaa.item ? depositaa.item.name : 'Unknown Item';
     const user = await User.findById(deposit.userId).session(session);
-    await sendFirebaseNotification(user, `مدفوعات التامين`, ` تم رفض طلب دفع التامين لوجود خطاء بالبيانات برجاء اعادة المحاولة لمزاد ${itemName}`);
+    await sendFirebaseNotification(user, `مدفوعات التامين`, ` تم رفض طلب دفع التامين لوجود خطأ بالبيانات برجاء اعادة المحاولة لمزاد ${itemName}`);
 
     await session.commitTransaction();
     session.endSession();

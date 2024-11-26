@@ -86,7 +86,7 @@ exports.withdrawFromWallet = async (req, res) => {
       adminId
     });
     const title = "طلب استرداد";
-    const body = ` تم سحب مبلغ  ${amount}من المحفظة وارساله اليكم بناء على الطلب المقدم والمتبقي فى المحفظة  ${user.walletBalance}.`;
+    const body = ` تم استرداد مبلغ  ${amount}من المحفظة بناء على الطلب المقدم والمتبقي فى المحفظة  ${user.walletBalance}.`;
     await sendFirebaseNotification(user, title, body);
     await transaction.save({ session });
     await session.commitTransaction();

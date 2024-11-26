@@ -143,7 +143,7 @@ const authMiddleware = catchAsync(async (req, res, next) => {
   // Verify `deviceId` header matches stored device ID
   const headerDeviceId = req.headers.deviceid;
   if (currentUser.deviceDetails.deviceId !== headerDeviceId) {
-    return next(new AppError('Logged in from a different device. Please log in again.', 401));
+    return next(new AppError('تم تسجيل الخروج , بسبب تسجيل الدخول من جهاز اخر ', 401));
   }
 
   req.user = currentUser; // Grant access to the protected route

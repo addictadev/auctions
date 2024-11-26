@@ -2474,7 +2474,7 @@ const processEndingSubcategories = async (now, notificationNamespace, session) =
           userId: deposit.userId,
           message: `انتهى المزاد ${subcategory.name} وجارى اعتماد الاسعار للترسية.`,
           itemId: subcategory._id,
-          type: 'auction'
+          type: 'payment'
         });
         await auctionEnded.save({ session });
 
@@ -2631,7 +2631,7 @@ const handleWinner = async (item, winnerBid, subcategory, notificationNamespace,
       message: `انتهى المزاد ${subcategory.name}  وانت اعلى سعر فى  ${item.name} وجارى اعتماد الاسعار `,
       
       itemId: item._id,
-      type: 'winner'
+      type: 'payment'
     });
     await winnerNotification.save({ session });
 

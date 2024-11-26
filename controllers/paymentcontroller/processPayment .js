@@ -280,7 +280,7 @@ const processPayment = async (req, res, next) => {
       ? `تم استكمال دفع المزاد بنجاح`
       : ` تم ارسال طلب استكمال الدفع بمزاد ${subcategoryName}.`,
       itemId,
-      type: 'payment',
+      type: 'winner',
     });
 
     await sendFirebaseNotification(user, 'طلب استكمال الدفع', notification.message);

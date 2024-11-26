@@ -254,7 +254,7 @@ const processPayment = async (req, res, next) => {
       if (user.walletBalance < dueAmount) {
         await session.abortTransaction();
         session.endSession();
-        return next(new AppError('Insufficient balance', 400));
+        return next(new AppError('رصيد المحفظة لا يكفي برجاء اعادة الشحن للاستمرار', 400));
       }
 
       user.walletBalance -= dueAmount;

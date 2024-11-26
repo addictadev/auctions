@@ -180,6 +180,7 @@ const AppError = require('../../utils/appError');
 const admin = require('../../firebase/firebaseAdmin'); // Firebase Admin SDK
 const factory = require('../../utils/apiFactory');
 const AdminNotification = require('../../models/adminNotificationModel'); 
+const subcategory = require('../../models/subcategory');
 
 const getprocessPayment = factory.getAll(Payment);
 // Helper function to send Firebase notifications
@@ -384,14 +385,16 @@ const approvePayment = async (req, res, next) => {
         select: 'name',
       })
       .session(session);
+      const subcategoryId = payment.winnerid.subcategory;
 
     if (!payment || payment.status !== 'pending') {
       await session.abortTransaction();
       session.endSession();
       return res.status(400).json({ message: 'Invalid payment or payment is not pending.' });
     }
-    console.log("payment",payment)
-    const subcategory = payment.winnerid.subcategory;
+   
+    const subcategory = await subcategory.findById(subcategoryId).select('name').session(session);
+
     if (!subcategory) {
       await session.abortTransaction();
       session.endSession();

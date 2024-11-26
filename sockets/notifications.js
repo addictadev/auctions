@@ -2624,32 +2624,38 @@ const handleWinner = async (item, winnerBid, subcategory, notificationNamespace,
   }
 
   // Notify the winner if they haven't been notified yet
-  // if (!item.notifiedWinner) {
-  //   const winnerNotification = new Notification({
-  //     userId: winnerBid.userId,
-  //     message: `مبرووك لقد فزت باللوط ${item.name} بمزاد  ${subcategory.name} بسعر ${winnerBid.amount}.`,
-  //     itemId: item._id,
-  //     type: 'winner'
-  //   });
-  //   await winnerNotification.save({ session });
+  if (!item.notifiedWinner) {
+    const winnerNotification = new Notification({
+      userId: winnerBid.userId,
+      // message: `مبرووك لقد فزت باللوط ${item.name} بمزاد  ${subcategory.name} بسعر ${winnerBid.amount}.`,
+      message: `انتهى المزاد ${subcategory.name}  وانت اعلى سعر فى  ${item.name} وجارى اعتماد الاسعار `,
+      
+      itemId: item._id,
+      type: 'winner'
+    });
+    await winnerNotification.save({ session });
 
     // Emit notification to the user's socket channel
-    // notificationNamespace.to(`user_${winnerBid.userId}`).emit('notification', {
-    //   message: `مبرووك لقد فزت باللوط  ${item.name} بمزاد ${subcategory.name} بسعر ${winnerBid.amount}.`,
-    // });
+    notificationNamespace.to(`user_${winnerBid.userId}`).emit('notification', {
+      // message: `مبرووك لقد فزت باللوط  ${item.name} بمزاد ${subcategory.name} بسعر ${winnerBid.amount}.`,
+      message: `انتهى المزاد ${subcategory.name}  وانت اعلى سعر فى  ${item.name} وجارى اعتماد الاسعار `,
+
+    });
 
     // If the user has an FCM token, send a push notification
     const user = await User.findById(winnerBid.userId).session(session);
-    // if (user && user.fcmToken) {
-    //   const message = {
-    //     notification: {
-    //       title: 'لقد فزت!',
-    //       body: `مبرووك لقد فزت باللوط ${item.name} بمزاد ${subcategory.name} بسعر ${winnerBid.amount}.`,
-    //     },
-    //     token: user.fcmToken,
-    //   };
-    //   // await admin.messaging().send(message);
-    // }
+    if (user && user.fcmToken) {
+      const message = {
+        notification: {
+          title: `انتهى المزاد ${subcategory.name} `,
+          body: `انت اعلى سعر فى ${item.name} مزاد ${subcategory.name} وجارى اعتماد الاسعار`
+
+          // body: `مبرووك لقد فزت باللوط ${item.name} بمزاد ${subcategory.name} بسعر ${winnerBid.amount}.`,
+        },
+        token: user.fcmToken,
+      };
+      // await admin.messaging().send(message);
+    }
 
     // Create a Winner entry in the database
     const winnerEntry = new Winner({

@@ -257,6 +257,8 @@
 const Booking = require('../../models/bookenigfile');
 const User = require('../../models/User');
 const Notification = require('../../models/notification');
+const Subcategory = require('../../models/subcategory');
+
 const mongoose = require('mongoose');
 const factory = require('../../utils/apiFactory');
 const AppError = require('../../utils/appError');
@@ -310,6 +312,8 @@ exports.bookFile = async (req, res, next) => {
     });
 
     const user = await User.findById(userId).session(session);
+    const subcategory = await Subcategory.findById(itemId).session(session);
+
 
     if (!user) {
       await session.abortTransaction();
@@ -325,7 +329,7 @@ exports.bookFile = async (req, res, next) => {
       }
 
       user.walletBalance -= amount;
-      user.walletTransactions.push({ amount, type: 'withdrawal', description: `طلب شراء كراسة الشروط ${itemId}` });
+      user.walletTransactions.push({ amount, type: 'withdrawal', description: `طلب شراء كراسة الشروط ${subcategory.name}` });
       await user.save({ session, validateBeforeSave: false });
     }
 

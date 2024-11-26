@@ -33,7 +33,7 @@ const validateDeposit = async (req, res, next) => {
   // Check if the user has approved booking files
   const bookingFile = await Booking.findOne({ userId, item, status: 'approved' });
   if (!bookingFile) {
-    return next(new AppError('لا يوجد مدفوعات تامين حتى الان', 400));
+    return next(new AppError('لا يوجد مدفوعات تأمين حتى الأن', 400));
   }
 
   // Ensure admin approval is required for non-wallet methods

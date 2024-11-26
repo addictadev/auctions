@@ -431,6 +431,7 @@ exports.rejectBooking = async (req, res) => {
       session.endSession();
       return res.status(404).json({ message: 'طلب كراسة الشروط غير موجود' });
     }
+    const populatedBooking = await Booking.findById(bookingId).populate('item');
 
     const notification = new Notification({
       userId: booking.userId,

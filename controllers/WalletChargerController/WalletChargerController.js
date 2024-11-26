@@ -235,7 +235,7 @@ exports.reviewWalletCharger = catchAsync(async (req, res, next) => {
       if (user && user.fcmToken) {
         const message = {
           notification: {
-            title: 'تم موافقة على طلب الدفع',
+            title: "طلب شحن المحفظة",
             body: `تم اضافة الرصيد الى المحفظة بمبلغ${amount}بنجاح .`,
           },
           token: user.fcmToken,

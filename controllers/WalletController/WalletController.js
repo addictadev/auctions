@@ -87,12 +87,12 @@ exports.withdrawFromWallet = async (req, res) => {
     });
     const notification = new Notification({
       userId: user._id,
-      message: `  استرداد مبلغ  ${amount}من المحفظة بناء على الطلب المقدم والمتبقي فى المحفظة  ${user.walletBalance}.`,
+      message: ` تم استرداد مبلغ  ${amount} من المحفظة بناء على الطلب المقدم والمتبقي فى المحفظة  ${user.walletBalance}.`,
       itemId: null,
       type: 'admin deposit ',
     });
     const title = "طلب استرداد";
-    const body = ` استرداد مبلغ  ${amount}من المحفظة بناء على الطلب المقدم والمتبقي فى المحفظة  ${user.walletBalance}.`;
+    const body = ` تم استرداد مبلغ  ${amount}من المحفظة بناء على الطلب المقدم والمتبقي فى المحفظة  ${user.walletBalance}.`;
     await sendFirebaseNotification(user, title, body);
     await transaction.save({ session });
     await session.commitTransaction();

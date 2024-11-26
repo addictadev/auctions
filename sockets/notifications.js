@@ -2666,7 +2666,7 @@ const handleWinner = async (item, winnerBid, subcategory, notificationNamespace,
 
 
 
-    const adminNotificationMessage = `فاز المستخدم ${winnerBid.userId} بالمزاد للبند ${item.name} في الفئة الفرعية ${subcategory.name}.`;
+    const adminNotificationMessage = `فاز المستخدم ${user?.phoneNumber} بالمزاد للبند ${item.name} في الفئة الفرعية ${subcategory.name}.`;
     const adminNotification = new AdminNotification({
       title: 'إشعار فوز جديد بالمزاد',
       message: adminNotificationMessage,

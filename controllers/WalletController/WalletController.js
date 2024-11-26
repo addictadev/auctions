@@ -87,12 +87,12 @@ exports.withdrawFromWallet = async (req, res) => {
     });
     const notification = new Notification({
       userId: user._id,
-      message: ` تم استرداد مبلغ  ${amount}من المحفظة بناء على الطلب المقدم والمتبقي فى المحفظة  ${user.walletBalance}.`,
+      message: `  استرداد مبلغ  ${amount}من المحفظة بناء على الطلب المقدم والمتبقي فى المحفظة  ${user.walletBalance}.`,
       itemId: null,
       type: 'admin deposit ',
     });
     const title = "طلب استرداد";
-    const body = ` تم استرداد مبلغ  ${amount}من المحفظة بناء على الطلب المقدم والمتبقي فى المحفظة  ${user.walletBalance}.`;
+    const body = ` استرداد مبلغ  ${amount}من المحفظة بناء على الطلب المقدم والمتبقي فى المحفظة  ${user.walletBalance}.`;
     await sendFirebaseNotification(user, title, body);
     await transaction.save({ session });
     await session.commitTransaction();
@@ -130,7 +130,7 @@ exports.addToWallet = async (req, res) => {
     user.walletTransactions.push({
       amount,
       type: 'deposit',
-      description: 'تم شحن رصيد الى المحفظة',
+      description: ' شحن رصيد الى المحفظة',
       timestamp: new Date()
     });
     await user.save({ session });
@@ -146,13 +146,13 @@ exports.addToWallet = async (req, res) => {
 
     const notification = new Notification({
       userId: user._id,
-      message: `تم اذافة مبلغ ${amount} الى رصيدك بالمحفظة`,
+      message: `تم اضافة مبلغ ${amount} الى رصيدك بالمحفظة`,
       itemId: null,
       type: 'admin deposit ',
     });
     await transaction.save({ session });
     await session.commitTransaction();
-    await sendFirebaseNotification(user, 'اضافة رصيد', `تم اذافة مبلغ ${amount} الى رصيدك بالمحفظة`);
+    await sendFirebaseNotification(user, 'اضافة رصيد', `اضافة مبلغ ${amount} الى رصيدك بالمحفظة`);
 
     session.endSession();
 

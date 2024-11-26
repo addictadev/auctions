@@ -362,7 +362,7 @@ const registerUser = async (req, res, next) => {
     res.status(201).json({
       status: "success",
       data: {
-        message: 'تم تسجيل المستخدم بنجاح تم ارسال كود يمكنك الانتظار 3 دقائق قبل طلب كود تفعيل جديد .',
+        message: 'تم ارسال رمز التحقق برجاء (OTP) الانتظار دقائق لحين وصوله اليك',
         userId: newUser._id
       }
     });
@@ -389,7 +389,7 @@ const verifyOTP = async (req, res, next) => {
     const otpRecord = await OTP.findOne({ userId, otpCode });
 
     if (!otpRecord || otpRecord.expiresAt < Date.now()) {
-      return next(new AppError('الكود غير صالح', 400));
+      return next(new AppError('رمز التحقق خطأ او منتهى الصلاحية', 400));
     }
 
     await User.findByIdAndUpdate(userId, { verified: true });
@@ -488,7 +488,7 @@ console.log(user)
     const lastOTP = await OTP.findOne({ userId }).sort({ createdAt: -1 });
 console.log(lastOTP)
     if (lastOTP && (Date.now() - new Date(lastOTP.createdAt).getTime()) < 3 * 60 * 1000) {
-      return next(new AppError('الكود تم ارساله الرجاء انتظار 3 دقائق لطلب كود جديد .', 429));
+      return next(new AppError('تم ارسال رمز التحقق (OTP)بالفعل برجاء الانتظار ٣ دقائق قبل الضغط على اعادة الارسال  ', 429));
     }
 
     // Remove any previous OTPs for the user
@@ -512,7 +512,7 @@ console.log(lastOTP)
     res.status(200).json({
       status: "success",
       data: {
-        message: 'تم ارسال الكود بنجاح ومتاح لمدة 10 دقايق.'
+        message: 'جارى ارسال رمز التحقق (OTP)'
       }
     });
   } catch (error) {
@@ -856,7 +856,7 @@ const loginUser = catchAsync(async (req, res, next) => {
     if (!user.verified) {
       await session.abortTransaction();
       session.endSession();
-      return next(new AppError('برجاء التاكد من تفعيل الحساب اولا', 406));
+      return next(new AppError("يرجى ادخال رمز التحقق (OTP)للنحقق من رقم الهاتف ", 406));
     }
 
     if (user.blocked) {
@@ -868,7 +868,7 @@ const loginUser = catchAsync(async (req, res, next) => {
     if (!user.approved) {
       await session.abortTransaction();
       session.endSession();
-      return next(new AppError('يجري الأن المراجعة والتحقق من بيانات الدخول', 400));
+      return next(new AppError('يجري الاَن المراجعة والتحقق من بيانات الدخول', 400));
     }
 
 
@@ -936,7 +936,7 @@ const approveUser = async (req, res, next) => {
 
     user.approved = true;
     await user.save();
-    await sendFirebaseNotification(user, 'تم الموافقة على حسابك حسابك نشط الأن')
+    await sendFirebaseNotification(user, '✅تم الموافقة على حسابك حسابك نشط الأن')
     // Send account activation message
     // const activationMessage = 'Your account is now active. Welcome!';
     // try {

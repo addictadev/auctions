@@ -2,7 +2,7 @@ const { body } = require('express-validator');
 
 const userValidator = {
    register : [
-    body('name').notEmpty().withMessage('برجاء ادخال الاسم'),
+    body('name').notEmpty().withMessage('برجاء ادخال اسم المستخدم'),
     body('email'),
     // body('birthdate').isISO8601().withMessage('Valid birthdate is required'),
     body('phoneNumber')

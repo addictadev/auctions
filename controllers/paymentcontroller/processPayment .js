@@ -446,6 +446,7 @@ const approvePayment = async (req, res, next) => {
 
     res.status(200).json({ message: `Payment has been ${payment.status}.` });
   } catch (error) {
+    console.log(error)
     await session.abortTransaction();
     session.endSession();
     res.status(500).json({ error: error.message });

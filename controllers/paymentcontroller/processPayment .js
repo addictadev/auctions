@@ -265,15 +265,15 @@ const processPayment = async (req, res, next) => {
     await payment.save({ session });
     // ? `تمت معالجة الدفع بمبلغ ${dueAmount} بنجاح للبند ${item.name} بواسطة المستخدم ${userId}.`
     // : `تم تقديم طلب دفع للبند ${item.name} ويتطلب موافقة الإدارة.`,
-    const subcategory = await subcategory.findById(item.subcategoryId).select('name').session(session);
+    const subcategoryaa = await subcategory.findById(item.subcategoryId).select('name').session(session);
 
-    if (!subcategory) {
+    if (!subcategoryaa) {
       await session.abortTransaction();
       session.endSession();
       return res.status(400).json({ message: 'Subcategory not found.' });
     }
 
-    const subcategoryName = subcategory.name;
+    const subcategoryName = subcategoryaa.name;
     const notification = new Notification({
       userId,
       message: billingMethod === 'wallet'

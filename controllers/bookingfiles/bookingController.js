@@ -329,7 +329,7 @@ exports.bookFile = async (req, res, next) => {
       }
 
       user.walletBalance -= amount;
-      user.walletTransactions.push({ amount, type: 'withdrawal', description: `لمزاد شراء كراسة الشروط ${subcategory.name}` });
+      user.walletTransactions.push({ amount, type: 'withdrawal', description: `شراء كراسة الشروط لمزاد ${subcategory.name}` });
       await user.save({ session, validateBeforeSave: false });
     }
 

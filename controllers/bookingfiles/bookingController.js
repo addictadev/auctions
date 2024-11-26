@@ -434,14 +434,14 @@ exports.rejectBooking = async (req, res) => {
 
     const notification = new Notification({
       userId: booking.userId,
-      message: 'تم رفض طلب دفع كراسة الشروط لوجود خطاء بالبيانات برجاء اعادة المحاولة',
+      message: `تم رفض طلب شراء كراشة الشروط لوجود خطأ بالبيانات برجاء اعادةالمحاولة ${populatedBooking.item.name}`,
       itemId: booking.item,
       type: 'bookingfiles',
     });
     await notification.save({ session });
 
     const user = await User.findById(booking.userId).session(session);
-    await sendFirebaseNotification(user, "كراسة الشروط", `تم رفض طلب شراء كراشة الشروط لوجود خطأ بالبيانات برجاء اعادة المحاولة`);
+    await sendFirebaseNotification(user, "كراسة الشروط", `تم رفض طلب شراء كراشة الشروط لوجود خطأ بالبيانات برجاء اعادةالمحاولة ${populatedBooking.item.name}`);
 
     await session.commitTransaction();
     session.endSession();

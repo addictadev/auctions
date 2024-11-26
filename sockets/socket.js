@@ -2035,7 +2035,7 @@ const createAuctionNamespace = (io) => {
           const message = {
             notification: {
               title: 'مزايدة جديدة',
-              body: `متزايد قام برفع السعر بقيمة ${amount} على لوط ${item.name} بمزاد ${item.subcategoryId.name}`,
+              body: `متزايد قام برفع السعر بقيمة ${amount} على  ${item.name} بمزاد ${item.subcategoryId.name}`,
             },
             tokens: fcmTokens,
           };

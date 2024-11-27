@@ -2590,7 +2590,38 @@ exports.aggregateSubcategoryResults = async (req, res) => {
     });
 
     // Fetch cancelled auctions
-    const cancelled = await Winner.aggregate([
+    // const cancelled = await Winner.aggregate([
+    //   { $match: { userId, status: 'cancelled' } },
+    //   {
+    //     $lookup: {
+    //       from: 'subcategories',
+    //       localField: 'subcategory',
+    //       foreignField: '_id',
+    //       as: 'subcategoryDetails'
+    //     }
+    //   },
+    //   { $unwind: '$subcategoryDetails' },
+    //   {
+    //     $lookup: {
+    //       from: 'items',
+    //       localField: 'itemId',
+    //       foreignField: '_id',
+    //       as: 'itemDetails'
+    //     }
+    //   },
+    //   {
+    //     $group: {
+    //       _id: '$subcategory',
+    //       count: { $sum: 1 },
+    //       documents: { $push: '$$ROOT' }
+    //     }
+    //   },
+    //   { $addFields: { status: 'cancelled' } }
+    // ]).catch(error => {
+    //   console.error('Error fetching cancelled auctions:', error);
+    //   throw new Error('Failed to fetch cancelled auctions');
+    // });
+    const cancelledWithDeposit = await Winner.aggregate([
       { $match: { userId, status: 'cancelled' } },
       {
         $lookup: {
@@ -2610,18 +2641,30 @@ exports.aggregateSubcategoryResults = async (req, res) => {
         }
       },
       {
+        $lookup: {
+          from: 'deposits',
+          localField: 'subcategoryDetails._id',
+          foreignField: 'subcategory',
+          as: 'depositDetails'
+        }
+      },
+      {
+        $match: {
+          'depositDetails.status': 'approved'  // Only those with paid deposits
+        }
+      },
+      {
         $group: {
           _id: '$subcategory',
           count: { $sum: 1 },
           documents: { $push: '$$ROOT' }
         }
       },
-      { $addFields: { status: 'cancelled' } }
+      { $addFields: { status: 'cancelledWithDeposit' } }
     ]).catch(error => {
-      console.error('Error fetching cancelled auctions:', error);
-      throw new Error('Failed to fetch cancelled auctions');
+      console.error('Error fetching cancelled auctions with deposit:', error);
+      throw new Error('Failed to fetch cancelled auctions with deposit');
     });
-
     // Fetch in-progress auctions
     const inProgress = await Deposit.aggregate([
       { $match: { userId, status: 'approved' } },

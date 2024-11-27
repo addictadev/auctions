@@ -673,7 +673,7 @@ exports.adminActionOnWinner = async (req, res) => {
     let type;
     const subcategoryResult = await SubcategoryResult.findOne({ userId: user._id, subcategory: subcategory,status: 'winner' });
     const deposits = await Deposit.find({
-      subcategory: subcategory._id,
+      item: subcategory,
       status: { $in: [ 'approved', 'rejected', 'refunded', 'winner'] }
     }).populate('userId');
     console.log("deposits",deposits);

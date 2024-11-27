@@ -205,7 +205,7 @@ exports.addToWallet = async (req, res) => {
       description: 'Admin deposit',
       adminId,
     });
-    const subcategory = await Subcategory.findOne({ _id: subcategory }).exec();
+    const subcategory = await Subcategory.findOne({ _id: subcategory });
     // Check if the request header contains 'dashboard: 1'
     let notificationMessage = `تم اضافة مبلغ ${amount} الى رصيدك بالمحفظة`;
     let titleDashboard = `اضافة رصيد`;

@@ -2462,8 +2462,11 @@ exports.getItemBidDetails = async (req, res) => {
 
 exports.aggregateSubcategoryResults = async (req, res) => {
   const userId = new mongoose.Types.ObjectId(req.params.id);
-
+  
   try {
+    const winnersss = await Winner.find()
+  return  res.json(winnersss);
+
     // Fetch pending and approved auctions
     const pendingAndApproved = await SubcategoryResult.aggregate([
       { $match: { userId, status: 'winner' } },

@@ -289,7 +289,7 @@ const processPayment = async (req, res, next) => {
     const adminNotificationMessage = billingMethod === 'wallet'
       ? `تمت معالجة الدفع بمبلغ ${dueAmount} بنجاح للبند ${item.name} بواسطة المستخدم ${user?.phoneNumber}.`
       // : ` تم تقديم طلب دفع للبند ${item.name} من المستخدم   ويتطلب موافقة الإدارة.`;
-      : ` تمت معاجلة الدفع بمبلغ ${dueAmount} بنجاح للبند ${item.name} بواسطة المستخدم : ${user?.phoneNumber}`;
+      : `   تم تقديم طلب دفع بمبلغ  ${dueAmount} بنجاح للبند ${item.name} بواسطة المستخدم : ${user?.phoneNumber}`;
 
       
     const adminNotification = new AdminNotification({

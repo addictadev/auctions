@@ -2462,11 +2462,8 @@ exports.getItemBidDetails = async (req, res) => {
 
 exports.aggregateSubcategoryResults = async (req, res) => {
   const userId = new mongoose.Types.ObjectId(req.params.id);
-  
-  try {
-    const winnersss = await Winner.find()
-  return  res.json(winnersss);
 
+  try {
     // Fetch pending and approved auctions
     const pendingAndApproved = await SubcategoryResult.aggregate([
       { $match: { userId, status: 'winner' } },
@@ -2593,38 +2590,7 @@ exports.aggregateSubcategoryResults = async (req, res) => {
     });
 
     // Fetch cancelled auctions
-    // const cancelled = await Winner.aggregate([
-    //   { $match: { userId, status: 'cancelled' } },
-    //   {
-    //     $lookup: {
-    //       from: 'subcategories',
-    //       localField: 'subcategory',
-    //       foreignField: '_id',
-    //       as: 'subcategoryDetails'
-    //     }
-    //   },
-    //   { $unwind: '$subcategoryDetails' },
-    //   {
-    //     $lookup: {
-    //       from: 'items',
-    //       localField: 'itemId',
-    //       foreignField: '_id',
-    //       as: 'itemDetails'
-    //     }
-    //   },
-    //   {
-    //     $group: {
-    //       _id: '$subcategory',
-    //       count: { $sum: 1 },
-    //       documents: { $push: '$$ROOT' }
-    //     }
-    //   },
-    //   { $addFields: { status: 'cancelled' } }
-    // ]).catch(error => {
-    //   console.error('Error fetching cancelled auctions:', error);
-    //   throw new Error('Failed to fetch cancelled auctions');
-    // });
-    const cancelledWithDeposit = await Winner.aggregate([
+    const cancelled = await Winner.aggregate([
       { $match: { userId, status: 'cancelled' } },
       {
         $lookup: {
@@ -2644,30 +2610,18 @@ exports.aggregateSubcategoryResults = async (req, res) => {
         }
       },
       {
-        $lookup: {
-          from: 'deposits',
-          localField: 'subcategoryDetails._id',
-          foreignField: 'subcategory',
-          as: 'depositDetails'
-        }
-      },
-      {
-        $match: {
-          'depositDetails.status': 'approved'  // Only those with paid deposits
-        }
-      },
-      {
         $group: {
           _id: '$subcategory',
           count: { $sum: 1 },
           documents: { $push: '$$ROOT' }
         }
       },
-      { $addFields: { status: 'cancelledWithDeposit' } }
+      { $addFields: { status: 'cancelled' } }
     ]).catch(error => {
-      console.error('Error fetching cancelled auctions with deposit:', error);
-      throw new Error('Failed to fetch cancelled auctions with deposit');
+      console.error('Error fetching cancelled auctions:', error);
+      throw new Error('Failed to fetch cancelled auctions');
     });
+
     // Fetch in-progress auctions
     const inProgress = await Deposit.aggregate([
       { $match: { userId, status: 'approved' } },
@@ -2732,7 +2686,7 @@ exports.aggregateSubcategoryResults = async (req, res) => {
       ...pendingAndApproved,
       ...losers,
       ...rejected,
-      ...cancelledWithDeposit,
+      ...cancelled,
       ...inProgress,
       ...notStartedYet
     ];
@@ -2743,7 +2697,7 @@ exports.aggregateSubcategoryResults = async (req, res) => {
       approvedWinner: { count: 0, subcategories: [] },
       loser: { count: 0, subcategories: [] },
       rejected: { count: 0, subcategories: [] },
-      cancelledWithDeposit: { count: 0, subcategories: [] },
+      cancelled: { count: 0, subcategories: [] },
       inprogress: { count: 0, subcategories: [] },
       notStartedYet: { count: 0, subcategories: [] }
     };

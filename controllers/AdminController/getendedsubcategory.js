@@ -646,7 +646,7 @@ exports.adminActionOnWinner = async (req, res) => {
     const subcategory = winner.subcategory;
     const deposit = await Deposit.findOne({ userId: user, item: subcategory })
     .select({ amount: 1, status: 1 });
-console.log(deposit.amount);
+
     let message;
     let type;
     const subcategoryResult = await SubcategoryResult.findOne({ userId: user._id, subcategory: subcategory,status: 'winner' });
@@ -685,7 +685,7 @@ console.log(deposit.amount);
         case 'regected':
           case 'cancelled':
             winner.statusadmin = action;
-            // winner.status = action;
+            winner.status = action;
             item.status = 'cancelled';
             message = `لم يتم قبول السعر  ${winner.itemId.name} , بمزاد ${winner.subcategory.name}`;
             

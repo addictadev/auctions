@@ -644,6 +644,201 @@ exports.getItemsBySubcategory = async (req, res) => {
 //     });
 //   }
 // };
+
+
+
+// exports.adminActionOnWinner = async (req, res) => {
+//   const { winnerId, action } = req.body;
+
+//   if (!winnerId || !action) {
+//     return res.status(400).json({ status: 'error', message: 'Winner ID and action are required' });
+//   }
+
+//   try {
+//     const winner = await Winner.findById(winnerId).populate('userId').populate('itemId').populate('subcategory');
+//     if (!winner) {
+//       return res.status(404).json({ status: 'error', message: 'Winner not found' });
+//     }
+
+//     if (winner.status === action) {
+//       return res.status(400).json({ status: 'error', message: 'Winner already has the status you are trying to set' });
+//     }
+
+//     const user = winner.userId;
+//     const item = winner.itemId;
+//     const subcategory = winner.subcategory;
+//     const deposit = await Deposit.findOne({ userId: user, item: subcategory })
+//     .select({ amount: 1, status: 1 });
+//     const deposits = await Deposit.find({ subcategory: subcategory._id,    status: { $in: [ 'approved', 'rejected', 'refunded','winner','refunded not join'] }, }).populate('userId');
+//     let message;
+//     let type;
+//     const subcategoryResult = await SubcategoryResult.findOne({ userId: user._id, subcategory: subcategory,status: 'winner' });
+//     // console.log(action);
+//     // Perform admin action on the winner
+//     switch (action) {
+//       case 'approve':
+//         winner.adminApproval = true;
+//         winner.statusadmin = action;
+//         message =` مبرووك لقد فزت  ${winner.itemId.name} , بمزاد ${winner.subcategory.name} يمكنك الان استكمال الدفع والتوجه للاستلام.`;
+//         type='winner';
+//         if (subcategoryResult && subcategoryResult.results.includes(winner._id)) {
+//           if (subcategoryResult.results.length > 0) {
+//             const remainingWinners = await Winner.find({
+//               _id: { $in: subcategoryResult.results }
+//             });
+//             let newTotalAmount = remainingWinners.reduce((sum, winner) => sum + winner.totalPaid, 0);
+//             // Subtract deposit amount
+//             console.log(newTotalAmount);
+
+//             newTotalAmount -= deposit.amount;
+//             console.log(newTotalAmount);
+            
+            
+            
+            
+//             subcategoryResult.totalAmount = newTotalAmount;
+//             await subcategoryResult.save({ validateBeforeSave: false });
+//             console.log(subcategoryResult);
+
+
+
+//           }
+//         }
+//         // Send notification to the winner only
+//         await sendFirebaseNotification(user, 'حالة الدفع', message);
+//         await Notification.create({
+//           userId: user._id,
+//           message,
+//           type: 'auction',
+//         });
+//         break;
+//         break;
+//         case 'regected':
+//           case 'cancelled':
+//             winner.statusadmin = action;
+//             // winner.status = action;
+//             item.status = 'cancelled';
+//             if (action=='regected'){
+//               message = `لم يتم قبول السعر  ${winner.itemId.name} , بمزاد ${winner.subcategory.name}`;
+//               await sendFirebaseNotification(user, 'حالة الدفع', message);
+//               await Notification.create({
+//                 userId: user._id,
+//                 message,
+//                 type: 'auction',
+//               });
+//               }
+//             // Remove winner from SubcategoryResult
+
+
+
+
+//         if (subcategoryResult && subcategoryResult.results.includes(winner._id)) {
+   
+//           subcategoryResult.results.pull(winnerId);
+//           if (subcategoryResult.results.length > 0) {
+//             const remainingWinners = await Winner.find({
+//               _id: { $in: subcategoryResult.results }
+//             });
+//             let newTotalAmount = remainingWinners.reduce((sum, winner) => sum + winner.totalPaid, 0);
+
+//             // Subtract deposit amount
+//             newTotalAmount -= deposit.amount;
+
+
+
+//             subcategoryResult.totalAmount = newTotalAmount;
+//             await subcategoryResult.save({ validateBeforeSave: false });
+
+
+
+//           }
+//           if (subcategoryResult.results.length === 0) {
+//             subcategoryResult.status = 'loser';
+//             subcategoryResult.totalAmount = 0;
+
+//             // user.walletBalance += subcategory.deposit;
+//             // user.walletTransactions.push({
+//             //   amount: subcategory.deposit,
+//             //   type: 'refund',
+//             //   description: `Refund for ${action === 'regected' ? 'regected' : 'cancelled'} bid on item ${item.name}`,
+//             // });
+//           }
+
+//           await subcategoryResult.save({ validateBeforeSave: false });
+//         }
+//         if (action=='cancelled'){
+//           for (const deposit of deposits) {
+//             const depositUser = deposit.userId;
+  
+//             // Skip notifying the winner if it's the same user
+//             if (depositUser._id.toString() === user._id.toString()) continue;
+  
+//             // Send Firebase notification to all deposit users
+//             await sendFirebaseNotification(depositUser, 'حالة المزاد', message);
+  
+//             // Create database notification
+//             await Notification.create({
+//               userId: depositUser._id,
+//               message,
+//               type: 'auction',
+//             });
+//           }
+//           }
+//         await item.save({ validateBeforeSave: false });
+//         break;
+//       default:
+//         return res.status(400).json({ status: 'error', message: 'Invalid action' });
+//     }
+
+//     await winner.save({ validateBeforeSave: false });
+//     await user.save({ validateBeforeSave: false });
+
+//     // Send notification using Firebase
+//     if (user.fcmToken) {
+//       const firebaseMessage = {
+//         notification: {
+//           title: 'حالة الدفع ',
+//           body: message,
+//         },
+//         token: user.fcmToken,
+//       };
+    
+//       try {
+//         await admin.messaging().send(firebaseMessage);
+//       } catch (firebaseError) {
+//         // Handle specific FCM token errors
+//         if (firebaseError.errorInfo.code === 'messaging/registration-token-not-registered') {
+//           // Token is invalid, remove it from the user's record
+//           user.fcmToken = null;
+//           await user.save({ validateBeforeSave: false });
+//           console.log(`Removed invalid FCM token for user ${user._id}`);
+//         } else {
+//           console.error('Error sending Firebase notification:', firebaseError);
+//         }
+//       }
+//     }
+//     // Create notification in the database
+//     await Notification.create({
+//       userId: user._id,
+//       message,
+//       type:'reject'
+//     });
+
+//     res.status(200).json({
+//       status: 'success',
+//       message: `Winner has been ${action === 'approve' ? 'approved' : action === 'rejected' ? 'rejected' : 'cancelled'}.`,
+//       data: winner,
+//     });
+//   } catch (error) {
+//     console.error('Error performing admin action on winner:', error);
+//     res.status(500).json({
+//       status: 'error',
+//       message: 'Internal server error',
+//     });
+//   }
+// };
+
+
 exports.adminActionOnWinner = async (req, res) => {
   const { winnerId, action } = req.body;
 
@@ -665,42 +860,33 @@ exports.adminActionOnWinner = async (req, res) => {
     const item = winner.itemId;
     const subcategory = winner.subcategory;
     const deposit = await Deposit.findOne({ userId: user, item: subcategory })
-    .select({ amount: 1, status: 1 });
-    const deposits = await Deposit.find({ subcategory: subcategory._id,    status: { $in: [ 'approved', 'rejected', 'refunded','winner','refunded not join'] }, }).populate('userId');
+      .select({ amount: 1, status: 1 });
+    const deposits = await Deposit.find({ subcategory: subcategory._id, status: { $in: ['approved', 'rejected', 'refunded', 'winner', 'refunded not join'] } }).populate('userId');
+    
     let message;
     let type;
-    const subcategoryResult = await SubcategoryResult.findOne({ userId: user._id, subcategory: subcategory,status: 'winner' });
-    // console.log(action);
+    const subcategoryResult = await SubcategoryResult.findOne({ userId: user._id, subcategory: subcategory, status: 'winner' });
+
     // Perform admin action on the winner
     switch (action) {
       case 'approve':
         winner.adminApproval = true;
         winner.statusadmin = action;
-        message =` مبرووك لقد فزت  ${winner.itemId.name} , بمزاد ${winner.subcategory.name} يمكنك الان استكمال الدفع والتوجه للاستلام.`;
-        type='winner';
+        message = `مبروك لقد فزت في مزاد ${winner.itemId.name} , بمزاد ${winner.subcategory.name} يمكنك الان استكمال الدفع والتوجه للاستلام.`;
+        type = 'winner';
+        
         if (subcategoryResult && subcategoryResult.results.includes(winner._id)) {
           if (subcategoryResult.results.length > 0) {
-            const remainingWinners = await Winner.find({
-              _id: { $in: subcategoryResult.results }
-            });
+            const remainingWinners = await Winner.find({ _id: { $in: subcategoryResult.results } });
             let newTotalAmount = remainingWinners.reduce((sum, winner) => sum + winner.totalPaid, 0);
-            // Subtract deposit amount
-            console.log(newTotalAmount);
 
+            // Subtract deposit amount
             newTotalAmount -= deposit.amount;
-            console.log(newTotalAmount);
-            
-            
-            
-            
             subcategoryResult.totalAmount = newTotalAmount;
             await subcategoryResult.save({ validateBeforeSave: false });
-            console.log(subcategoryResult);
-
-
-
           }
         }
+        
         // Send notification to the winner only
         await sendFirebaseNotification(user, 'حالة الدفع', message);
         await Notification.create({
@@ -709,70 +895,53 @@ exports.adminActionOnWinner = async (req, res) => {
           type: 'auction',
         });
         break;
-        break;
-        case 'regected':
-          case 'cancelled':
-            winner.statusadmin = action;
-            // winner.status = action;
-            item.status = 'cancelled';
-            if (action=='regected'){
-              message = `لم يتم قبول السعر  ${winner.itemId.name} , بمزاد ${winner.subcategory.name}`;
-              await sendFirebaseNotification(user, 'حالة الدفع', message);
-              await Notification.create({
-                userId: user._id,
-                message,
-                type: 'auction',
-              });
-              }
-            // Remove winner from SubcategoryResult
 
+      case 'rejected':
+      case 'cancelled':
+        winner.statusadmin = action;
+        item.status = 'cancelled';
+        
+        if (action === 'rejected') {
+          message = `لم يتم قبول السعر في مزاد ${winner.itemId.name} , بمزاد ${winner.subcategory.name}`;
+          await sendFirebaseNotification(user, 'حالة الدفع', message);
+          await Notification.create({
+            userId: user._id,
+            message,
+            type: 'auction',
+          });
+        }
 
-
-
+        // Remove winner from SubcategoryResult
         if (subcategoryResult && subcategoryResult.results.includes(winner._id)) {
-   
           subcategoryResult.results.pull(winnerId);
           if (subcategoryResult.results.length > 0) {
-            const remainingWinners = await Winner.find({
-              _id: { $in: subcategoryResult.results }
-            });
+            const remainingWinners = await Winner.find({ _id: { $in: subcategoryResult.results } });
             let newTotalAmount = remainingWinners.reduce((sum, winner) => sum + winner.totalPaid, 0);
 
             // Subtract deposit amount
             newTotalAmount -= deposit.amount;
-
-
-
             subcategoryResult.totalAmount = newTotalAmount;
             await subcategoryResult.save({ validateBeforeSave: false });
-
-
-
           }
+
           if (subcategoryResult.results.length === 0) {
             subcategoryResult.status = 'loser';
             subcategoryResult.totalAmount = 0;
-
-            // user.walletBalance += subcategory.deposit;
-            // user.walletTransactions.push({
-            //   amount: subcategory.deposit,
-            //   type: 'refund',
-            //   description: `Refund for ${action === 'regected' ? 'regected' : 'cancelled'} bid on item ${item.name}`,
-            // });
           }
 
           await subcategoryResult.save({ validateBeforeSave: false });
         }
-        if (action=='cancelled'){
+
+        if (action === 'cancelled') {
           for (const deposit of deposits) {
             const depositUser = deposit.userId;
-  
+
             // Skip notifying the winner if it's the same user
             if (depositUser._id.toString() === user._id.toString()) continue;
-  
+
             // Send Firebase notification to all deposit users
             await sendFirebaseNotification(depositUser, 'حالة المزاد', message);
-  
+
             // Create database notification
             await Notification.create({
               userId: depositUser._id,
@@ -780,9 +949,11 @@ exports.adminActionOnWinner = async (req, res) => {
               type: 'auction',
             });
           }
-          }
+        }
+        
         await item.save({ validateBeforeSave: false });
         break;
+
       default:
         return res.status(400).json({ status: 'error', message: 'Invalid action' });
     }
@@ -794,7 +965,7 @@ exports.adminActionOnWinner = async (req, res) => {
     if (user.fcmToken) {
       const firebaseMessage = {
         notification: {
-          title: 'حالة الدفع ',
+          title: 'حالة الدفع',
           body: message,
         },
         token: user.fcmToken,
@@ -814,11 +985,12 @@ exports.adminActionOnWinner = async (req, res) => {
         }
       }
     }
+
     // Create notification in the database
     await Notification.create({
       userId: user._id,
       message,
-      type:'reject'
+      type: 'reject',
     });
 
     res.status(200).json({

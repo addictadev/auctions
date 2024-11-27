@@ -776,7 +776,7 @@ exports.adminActionOnWinner = async (req, res) => {
           for (const deposit of deposits) {
             const depositUser = deposit.userId;
             // Skip notifying the winner if it's the same user
-            if (depositUser._id.toString() === user._id.toString()) continue;
+            // if (depositUser._id.toString() === user._id.toString()) continue;
   
             // Send Firebase notification to all deposit users
             await sendFirebaseNotification(depositUser, 'حالة الترسية', message);

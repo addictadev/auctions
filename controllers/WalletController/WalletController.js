@@ -223,7 +223,7 @@ exports.addToWallet = async (req, res) => {
       userId: user._id,
       message: notificationMessage,
       itemId: null,
-      type: 'admin deposit',
+      type: 'deposit',
     });
 
     await transaction.save({ session });

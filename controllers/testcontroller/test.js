@@ -3936,18 +3936,13 @@ exports.getItemBidDetails2 = async (req, res) => {
     ]);
 
     // Apply status filter if provided
-    // if (statusFilter) {
-    //   itemDetails = itemDetails.map(group => {
-    //     group.items = group.items.filter(item => item.status === statusFilter);
-    //     return group;
-    //   }).filter(group => group.items.length > 0);
-    // }
     if (statusFilter) {
       itemDetails = itemDetails.map(group => {
         group.items = group.items.filter(item => item.status === statusFilter);
         return group;
       }).filter(group => group.items.length > 0);
     }
+
     if (!itemDetails.length) {
       return res.status(404).json({ message: 'No items found for the specified subcategory result and status.' });
     }

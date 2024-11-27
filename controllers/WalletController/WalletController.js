@@ -172,7 +172,7 @@ exports.withdrawFromWallet = async (req, res) => {
 
 exports.addToWallet = async (req, res) => {
   const { userId, amount, adminId, subcategory } = req.body;
-  
+  console.log("lllllllllll",req.headers.dashboard)
   if (!userId || !amount) {
     return res.status(400).json({ message: 'User ID and amount are required' });
   }
@@ -238,6 +238,7 @@ exports.addToWallet = async (req, res) => {
     res.status(200).json({ message: 'Deposit successful', user, transaction });
 
   } catch (error) {
+    console.log(error)
     await session.abortTransaction();
     session.endSession();
     res.status(400).json({ message: error.message });

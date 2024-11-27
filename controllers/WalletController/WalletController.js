@@ -205,7 +205,7 @@ exports.addToWallet = async (req, res) => {
       description: 'Admin deposit',
       adminId,
     });
-    const subcategory = await Subcategory.findOne({ _id: subcategory });
+    const subcategoryaa = await Subcategory.findOne({ _id: subcategory });
     // Check if the request header contains 'dashboard: 1'
     let notificationMessage = `تم اضافة مبلغ ${amount} الى رصيدك بالمحفظة`;
     let titleDashboard = `اضافة رصيد`;
@@ -214,7 +214,7 @@ exports.addToWallet = async (req, res) => {
     if (req.headers.dashboard == '1') {
       
       // Customize the notification message for the dashboard action
-      notificationMessage = `تم رد المتبقي من التامين بمزاد ${subcategory?.name} بملغ ${amount} الى المحفظة بعد الترسية`;
+      notificationMessage = `تم رد المتبقي من التامين بمزاد ${subcategoryaa?.name} بملغ ${amount} الى المحفظة بعد الترسية`;
      titleDashboard = `باقى مبلغ الترسية`;
 
     }

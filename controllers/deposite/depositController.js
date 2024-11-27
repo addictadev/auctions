@@ -427,7 +427,7 @@ exports.approveDeposit = catchAsync(async (req, res, next) => {
     const notification = new Notification({
       userId: depositaa.userId,
       message: ` تم الموافقة على طلب دفع التامين يمكنك المزايدة الان لمزاد ${itemName}`,
-      itemId: populatedBooking.item,
+      itemId: depositaa.item,
       type: 'auction',
     });
     await notification.save({ session });
@@ -470,7 +470,7 @@ exports.rejectDeposit = catchAsync(async (req, res, next) => {
     const notification = new Notification({
       userId: depositaa.userId,
       message: ` تم رفض طلب دفع التامين لوجود خطأ بالبيانات برجاء اعادة المحاولة لمزاد ${itemName}`,
-      itemId: populatedBooking.item,
+      itemId: depositaa.item,
       type: 'auction',
     });
     await notification.save({ session });

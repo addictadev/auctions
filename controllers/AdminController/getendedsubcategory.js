@@ -720,7 +720,7 @@ exports.adminActionOnWinner = async (req, res) => {
             item.status = 'cancelled';
             if (action=='regected'){
               message = `لم يتم قبول السعر  ${winner.itemId.name} , بمزاد ${winner.subcategory.name}`;
-              await sendFirebaseNotification(user, 'حالة الدفع', message);
+              await sendFirebaseNotification(user, ' ', message);
               await Notification.create({
                 userId: user._id,
                 message,
@@ -769,7 +769,7 @@ exports.adminActionOnWinner = async (req, res) => {
         if (action=='cancelled'){
           for (const deposit of deposits) {
             const depositUser = deposit.userId;
-  
+            message = `تم إلغاء مزاد ${winner.subcategory.name} على ${winner.itemId.name}.`;
             // Skip notifying the winner if it's the same user
             if (depositUser._id.toString() === user._id.toString()) continue;
   

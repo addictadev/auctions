@@ -287,11 +287,11 @@ const processPayment = async (req, res, next) => {
     await notification.save({ session });
 
     const adminNotificationMessage = billingMethod === 'wallet'
-      ? `تمت معالجة الدفع بمبلغ ${dueAmount} بنجاح للبند ${item.name} بواسطة المستخدم ${userId}.`
+      ? `تمت معالجة الدفع بمبلغ ${dueAmount} بنجاح للبند ${item.name} بواسطة المستخدم ${user?.phoneNumber}.`
       : `تم تقديم طلب دفع للبند ${item.name} ويتطلب موافقة الإدارة.`;
       
     const adminNotification = new AdminNotification({
-      userId,
+      user,
       title: 'إشعار دفع جديد',
       message: adminNotificationMessage,
     });

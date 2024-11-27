@@ -428,7 +428,7 @@ exports.approveDeposit = catchAsync(async (req, res, next) => {
       userId: depositaa.userId,
       message: ` تم الموافقة على طلب دفع التامين يمكنك المزايدة الان لمزاد ${itemName}`,
       itemId: depositaa.item,
-      type: 'auction',
+      type: 'deposit',
     });
     await notification.save({ session });
     await sendFirebaseNotification(user, `مدفوعات التامين`, ` تم الموافقة على طلب دفع التامين يمكنك المزايدة الان لمزاد ${itemName}.`);

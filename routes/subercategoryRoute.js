@@ -49,6 +49,7 @@ console.log(req.headers)
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
   // 3) Check if user still exists
+  
   const currentUser = await User.findById(decoded.id);
   if (!currentUser) {
     return next(

@@ -433,7 +433,7 @@ const approvePayment = async (req, res, next) => {
         // itemId: payment.itemId._id,
         type: 'payment',
       });
-      await sendFirebaseNotification(payment.winnerid.userId, `تم رفض استكمال الدفع  ${message}`, notification.message);
+      await sendFirebaseNotification(payment.winnerid.userId, `تم رفض استكمال الدفع `, notification.message);
       await notification.save({ session });
     } else {
       await session.abortTransaction();

@@ -222,11 +222,10 @@ exports.addToWallet = async (req, res) => {
 
     await user.save({ session });
     if (req.headers.dashboard == '1') {
-      
       // Customize the notification message for the dashboard action
-      notificationMessage = `تم رد المتبقي من التامين بمزاد ${subcategoryaa?.name} بمبلغ ${amount} الى المحفظة بعد الترسية`;
-     titleDashboard = `باقى مبلغ الترسية`;
-
+      // notificationMessage = `تم رد المتبقي من التامين بمزاد ${subcategoryaa?.name} بمبلغ ${amount} الى المحفظة بعد الترسية`;
+      notificationMessage = `تم رد التامين بمزاد ${subcategoryaa?.name} بمبلغ ${amount} الى المحفظة`;
+      titleDashboard = `استرداد التامين`;
     }
 
     const notification = new Notification({

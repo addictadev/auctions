@@ -2740,7 +2740,7 @@ exports.aggregateSubcategoryResults = async (req, res) => {
       approvedWinner: { count: 0, subcategories: [] },
       loser: { count: 0, subcategories: [] },
       rejected: { count: 0, subcategories: [] },
-      cancelled: { count: 0, subcategories: [] },
+      cancelledWithDeposit: { count: 0, subcategories: [] },
       inprogress: { count: 0, subcategories: [] },
       notStartedYet: { count: 0, subcategories: [] }
     };

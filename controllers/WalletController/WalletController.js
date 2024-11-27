@@ -3,6 +3,8 @@ const Transaction = require('../../models/Transaction');
 const mongoose = require('mongoose');
 const admin = require('../../firebase/firebaseAdmin'); 
 const Notification = require('../../models/notification');
+const Subcategory = require('../../models/subcategory');
+
 const factory = require('../../utils/apiFactory');
 exports.getAllRefund=factory.getAll(Transaction)
 // Firebase Admin SDK
@@ -106,12 +108,71 @@ exports.withdrawFromWallet = async (req, res) => {
   }
 };
 
+// exports.addToWallet = async (req, res) => {
+//   const { userId, amount,adminId,subcategory } = req.body;
+//   // const adminId = req.admin._id;
+//   // const adminId = '668e669e2df2923c9d5f27e7';
+
+
+//   if (!userId || !amount) {
+//     return res.status(400).json({ message: 'User ID and amount are required' });
+//   }
+
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+
+//   try {
+//     const user = await User.findById(userId).session(session);
+
+//     if (!user) {
+//       throw new Error('User not found');
+//     }
+
+//     user.walletBalance +=parseInt(amount);
+//     user.walletTransactions.push({
+//       amount,
+//       type: 'deposit',
+//       description: ' شحن رصيد الى المحفظة',
+//       timestamp: new Date()
+//     });
+//     await user.save({ session });
+
+//     const transaction = new Transaction({
+//       userId: user._id,
+//       subcategory,
+//       amount,
+//       type: 'deposit',
+//       description: 'Admin deposit',
+//       adminId
+//     });
+
+//     const notification = new Notification({
+//       userId: user._id,
+//       message: `تم اضافة مبلغ ${amount} الى رصيدك بالمحفظة`,
+//       itemId: null,
+//       type: 'admin deposit ',
+//     });
+//     await transaction.save({ session });
+//     await session.commitTransaction();
+//     await sendFirebaseNotification(user, 'اضافة رصيد', `تم اضافة مبلغ ${amount} الى رصيدك بالمحفظة`);
+
+//     session.endSession();
+
+//     res.status(200).json({ message: 'Deposit successful', user, transaction });
+//   } catch (error) {
+//     await session.abortTransaction();
+//     session.endSession();
+//     res.status(400).json({ message: error.message });
+//   }
+// };
+
+
+
+
+
 exports.addToWallet = async (req, res) => {
-  const { userId, amount,adminId,subcategory } = req.body;
-  // const adminId = req.admin._id;
-  // const adminId = '668e669e2df2923c9d5f27e7';
-
-
+  const { userId, amount, adminId, subcategory } = req.body;
+  
   if (!userId || !amount) {
     return res.status(400).json({ message: 'User ID and amount are required' });
   }
@@ -126,13 +187,14 @@ exports.addToWallet = async (req, res) => {
       throw new Error('User not found');
     }
 
-    user.walletBalance +=parseInt(amount);
+    user.walletBalance += parseInt(amount);
     user.walletTransactions.push({
       amount,
       type: 'deposit',
-      description: ' شحن رصيد الى المحفظة',
-      timestamp: new Date()
+      description: 'شحن رصيد الى المحفظة',
+      timestamp: new Date(),
     });
+
     await user.save({ session });
 
     const transaction = new Transaction({
@@ -141,28 +203,61 @@ exports.addToWallet = async (req, res) => {
       amount,
       type: 'deposit',
       description: 'Admin deposit',
-      adminId
+      adminId,
     });
+    const subcategory = await Subcategory.findOne({ _id: subcategory }).exec();
+    // Check if the request header contains 'dashboard: 1'
+    let notificationMessage = `تم اضافة مبلغ ${amount} الى رصيدك بالمحفظة`;
+    let titleDashboard = `اضافة رصيد`;
+
+
+    if (req.headers.dashboard == '1') {
+      
+      // Customize the notification message for the dashboard action
+      notificationMessage = `تم رد المتبقي من التامين بمزاد ${subcategory?.name} بملغ ${amount} الى المحفظة بعد الترسية`;
+     titleDashboard = `باقى مبلغ الترسية`;
+
+    }
 
     const notification = new Notification({
       userId: user._id,
-      message: `تم اضافة مبلغ ${amount} الى رصيدك بالمحفظة`,
+      message: notificationMessage,
       itemId: null,
-      type: 'admin deposit ',
+      type: 'admin deposit',
     });
-    await transaction.save({ session });
-    await session.commitTransaction();
-    await sendFirebaseNotification(user, 'اضافة رصيد', `تم اضافة مبلغ ${amount} الى رصيدك بالمحفظة`);
 
+    await transaction.save({ session });
+    await notification.save({ session });
+
+    // Send the notification via Firebase
+    await sendFirebaseNotification(user, titleDashboard, notificationMessage);
+
+    await session.commitTransaction();
     session.endSession();
 
     res.status(200).json({ message: 'Deposit successful', user, transaction });
+
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
     res.status(400).json({ message: error.message });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 exports.deleteTransaction = async (req, res) => {
   const { id } = req.body;

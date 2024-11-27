@@ -712,7 +712,7 @@ exports.adminActionOnWinner = async (req, res) => {
         await Notification.create({
           userId: user._id,
           message,
-          type: 'auction',
+          type: 'winner',
         });
         break;
         break;
@@ -727,7 +727,7 @@ exports.adminActionOnWinner = async (req, res) => {
               await Notification.create({
                 userId: user._id,
                 message,
-                type: 'auction',
+                type: 'reject',
               });
               }
             // Remove winner from SubcategoryResult

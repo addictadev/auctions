@@ -2654,6 +2654,11 @@ const handleWinner = async (item, winnerBid, subcategory, notificationNamespace,
         },
         token: user.fcmToken,
       };
+      try {
+        await admin.messaging().send(message);
+      } catch (error) {
+        console.error(`Failed to send notification to user ${user._id}: ${error.message}`);
+      }
       // await admin.messaging().send(message);
     }
 

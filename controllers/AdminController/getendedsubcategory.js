@@ -708,7 +708,7 @@ exports.adminActionOnWinner = async (req, res) => {
           }
         }
         // Send notification to the winner only
-        await sendFirebaseNotification(user, 'حالة الدفع', message);
+        await sendFirebaseNotification(user, 'حالة الترسية', message);
         await Notification.create({
           userId: user._id,
           message,

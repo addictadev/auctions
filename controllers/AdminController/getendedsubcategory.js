@@ -767,9 +767,9 @@ exports.adminActionOnWinner = async (req, res) => {
           await subcategoryResult.save({ validateBeforeSave: false });
         }
         if (action=='cancelled'){
+          message = `تم إلغاء  ${winner.itemId.name}بمزاد ${winner.subcategory.name}.`;
           for (const deposit of deposits) {
             const depositUser = deposit.userId;
-            message = `تم إلغاء  ${winner.itemId.name}بمزاد ${winner.subcategory.name}.`;
             // Skip notifying the winner if it's the same user
             if (depositUser._id.toString() === user._id.toString()) continue;
   

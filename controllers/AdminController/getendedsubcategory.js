@@ -669,11 +669,14 @@ exports.adminActionOnWinner = async (req, res) => {
     const subcategory = winner.subcategory;
     const deposit = await Deposit.findOne({ userId: user, item: subcategory })
     .select({ amount: 1, status: 1 });
-    const deposits = await Deposit.find({ subcategory: subcategory._id,    status: { $in: [ 'approved', 'rejected', 'refunded','winner','refunded not join'] }, }).populate('userId');
     let message;
     let type;
     const subcategoryResult = await SubcategoryResult.findOne({ userId: user._id, subcategory: subcategory,status: 'winner' });
-    // console.log(action);
+    const deposits = await Deposit.find({
+      subcategory: subcategory._id,
+      status: { $in: [ 'approved', 'rejected', 'refunded', 'winner'] }
+    }).populate('userId');
+    console.log("deposits",deposits);
     // Perform admin action on the winner
     switch (action) {
       case 'approve':
@@ -767,6 +770,8 @@ exports.adminActionOnWinner = async (req, res) => {
           await subcategoryResult.save({ validateBeforeSave: false });
         }
         if (action=='cancelled'){
+    console.log("depositsssssssssssssss",deposits);
+
           message = `تم إلغاء  ${winner.itemId.name}بمزاد ${winner.subcategory.name}.`;
           for (const deposit of deposits) {
             const depositUser = deposit.userId;
@@ -794,35 +799,35 @@ exports.adminActionOnWinner = async (req, res) => {
     await user.save({ validateBeforeSave: false });
 
     // Send notification using Firebase
-    if (user.fcmToken) {
-      const firebaseMessage = {
-        notification: {
-          title: 'حالة الدفع ',
-          body: message,
-        },
-        token: user.fcmToken,
-      };
+    // if (user.fcmToken) {
+    //   const firebaseMessage = {
+    //     notification: {
+    //       title: 'حالة الدفع ',
+    //       body: message,
+    //     },
+    //     token: user.fcmToken,
+    //   };
     
-      try {
-        await admin.messaging().send(firebaseMessage);
-      } catch (firebaseError) {
-        // Handle specific FCM token errors
-        if (firebaseError.errorInfo.code === 'messaging/registration-token-not-registered') {
-          // Token is invalid, remove it from the user's record
-          user.fcmToken = null;
-          await user.save({ validateBeforeSave: false });
-          console.log(`Removed invalid FCM token for user ${user._id}`);
-        } else {
-          console.error('Error sending Firebase notification:', firebaseError);
-        }
-      }
-    }
+    //   try {
+    //     await admin.messaging().send(firebaseMessage);
+    //   } catch (firebaseError) {
+    //     // Handle specific FCM token errors
+    //     if (firebaseError.errorInfo.code === 'messaging/registration-token-not-registered') {
+    //       // Token is invalid, remove it from the user's record
+    //       user.fcmToken = null;
+    //       await user.save({ validateBeforeSave: false });
+    //       console.log(`Removed invalid FCM token for user ${user._id}`);
+    //     } else {
+    //       console.error('Error sending Firebase notification:', firebaseError);
+    //     }
+    //   }
+    // }
     // Create notification in the database
-    await Notification.create({
-      userId: user._id,
-      message,
-      type:'reject'
-    });
+    // await Notification.create({
+    //   userId: user._id,
+    //   message,
+    //   type:'reject'
+    // });
 
     res.status(200).json({
       status: 'success',

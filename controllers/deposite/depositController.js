@@ -424,6 +424,13 @@ exports.approveDeposit = catchAsync(async (req, res, next) => {
     ).populate('item');
     const itemName = depositaa.item ? depositaa.item.name : 'Unknown Item';
     const user = await User.findById(deposit.userId).session(session);
+    const notification = new Notification({
+      userId: depositaa.userId,
+      message: ` تم الموافقة على طلب دفع التامين يمكنك المزايدة الان لمزاد ${itemName}`,
+      itemId: populatedBooking.item,
+      type: 'auction',
+    });
+    await notification.save({ session });
     await sendFirebaseNotification(user, `مدفوعات التامين`, ` تم الموافقة على طلب دفع التامين يمكنك المزايدة الان لمزاد ${itemName}.`);
 
     await session.commitTransaction();
@@ -460,6 +467,13 @@ exports.rejectDeposit = catchAsync(async (req, res, next) => {
     ).populate('item');
     const itemName = depositaa.item ? depositaa.item.name : 'Unknown Item';
     const user = await User.findById(deposit.userId).session(session);
+    const notification = new Notification({
+      userId: depositaa.userId,
+      message: ` تم رفض طلب دفع التامين لوجود خطأ بالبيانات برجاء اعادة المحاولة لمزاد ${itemName}`,
+      itemId: populatedBooking.item,
+      type: 'auction',
+    });
+    await notification.save({ session });
     await sendFirebaseNotification(user, `مدفوعات التامين`, ` تم رفض طلب دفع التامين لوجود خطأ بالبيانات برجاء اعادة المحاولة لمزاد ${itemName}`);
 
     await session.commitTransaction();

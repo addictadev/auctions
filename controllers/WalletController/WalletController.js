@@ -187,15 +187,15 @@ exports.addToWallet = async (req, res) => {
       throw new Error('User not found');
     }
 
-    user.walletBalance += parseInt(amount);
-    user.walletTransactions.push({
-      amount,
-      type: 'deposit',
-      description: 'شحن رصيد الى المحفظة',
-      timestamp: new Date(),
-    });
+    // user.walletBalance += parseInt(amount);
+    // user.walletTransactions.push({
+    //   amount,
+    //   type: 'deposit',
+    //   description: 'شحن رصيد الى المحفظة',
+    //   timestamp: new Date(),
+    // });
 
-    await user.save({ session });
+    // await user.save({ session });
 
     const transaction = new Transaction({
       userId: user._id,
@@ -209,8 +209,18 @@ exports.addToWallet = async (req, res) => {
     // Check if the request header contains 'dashboard: 1'
     let notificationMessage = `تم اضافة مبلغ ${amount} الى رصيدك بالمحفظة`;
     let titleDashboard = `اضافة رصيد`;
+    const description = req.headers.dashboard == '1'
+      ? `رد باقى مبلغ التامين لمزاد ${subcategoryaa?.name}`  // Description for dashboard = 1
+      : 'شحن رصيد الى المحفظة';
+    user.walletBalance += parseInt(amount);
+    user.walletTransactions.push({
+      amount,
+      type: 'deposit',
+      description,
+      timestamp: new Date(),
+    });
 
-
+    await user.save({ session });
     if (req.headers.dashboard == '1') {
       
       // Customize the notification message for the dashboard action

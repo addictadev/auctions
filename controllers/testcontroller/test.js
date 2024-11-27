@@ -2591,7 +2591,7 @@ exports.aggregateSubcategoryResults = async (req, res) => {
 
     // Fetch cancelled auctions
     const cancelled = await Winner.aggregate([
-      { $match: { userId, status: 'cancelled' } },
+      { $match: { userId, statusadmin: 'cancelled' } },
       {
         $lookup: {
           from: 'subcategories',

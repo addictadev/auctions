@@ -6,7 +6,7 @@ const winnercontroller = require('../controllers/testcontroller/test');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // router.post('/',DepositController.createDeposit);
-router.get('/:id', winnercontroller.aggregateSubcategoryResults);
+router.get('/:id',authMiddleware, winnercontroller.aggregateSubcategoryResults);
 
 // router.get('/:userId',authMiddleware, winnercontroller.getUserBidHistory);
 // router.get('/:userId/:itemId', winnercontroller.getItemBidDetails);

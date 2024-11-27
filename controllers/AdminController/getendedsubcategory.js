@@ -10,6 +10,26 @@ const { ObjectId } = require('mongodb');
 const Notification = require('../../models/notification');
 const admin = require('../../firebase/firebaseAdmin');  
 const Deposit = require('../../models/Deposit');
+const sendFirebaseNotification = async (user, title, body) => {
+  if (user && user.fcmToken) {
+    const message = {
+      notification: {
+        title,
+        body,
+      },
+      token: user.fcmToken,
+    };
+    try {
+      await admin.messaging().send(message);
+      console.log('Notification sent successfully');
+    } catch (error) {
+      console.error('Error sending notification:', error);
+    }
+  } else {
+    console.error('User FCM token not found or invalid');
+  }
+};
+
 exports.getEndedSubcategories = async (req, res) => {
   try {
     const endedSubcategories = await Subcategory.aggregate([
@@ -646,7 +666,7 @@ exports.adminActionOnWinner = async (req, res) => {
     const subcategory = winner.subcategory;
     const deposit = await Deposit.findOne({ userId: user, item: subcategory })
     .select({ amount: 1, status: 1 });
-
+    const deposits = await Deposit.find({ subcategory: subcategory._id,    status: { $in: [ 'approved', 'rejected', 'refunded','winner','refunded not join'] }, }).populate('userId');
     let message;
     let type;
     const subcategoryResult = await SubcategoryResult.findOne({ userId: user._id, subcategory: subcategory,status: 'winner' });
@@ -681,14 +701,29 @@ exports.adminActionOnWinner = async (req, res) => {
 
           }
         }
+        // Send notification to the winner only
+        await sendFirebaseNotification(user, 'حالة الدفع', message);
+        await Notification.create({
+          userId: user._id,
+          message,
+          type: 'auction',
+        });
+        break;
         break;
         case 'regected':
           case 'cancelled':
             winner.statusadmin = action;
-            winner.status = action;
+            // winner.status = action;
             item.status = 'cancelled';
-            message = `لم يتم قبول السعر  ${winner.itemId.name} , بمزاد ${winner.subcategory.name}`;
-            
+            if (action=='regected'){
+              message = `لم يتم قبول السعر  ${winner.itemId.name} , بمزاد ${winner.subcategory.name}`;
+              await sendFirebaseNotification(user, 'حالة الدفع', message);
+              await Notification.create({
+                userId: user._id,
+                message,
+                type: 'auction',
+              });
+              }
             // Remove winner from SubcategoryResult
 
 
@@ -728,7 +763,24 @@ exports.adminActionOnWinner = async (req, res) => {
 
           await subcategoryResult.save({ validateBeforeSave: false });
         }
-
+        if (action=='cancelled'){
+          for (const deposit of deposits) {
+            const depositUser = deposit.userId;
+  
+            // Skip notifying the winner if it's the same user
+            if (depositUser._id.toString() === user._id.toString()) continue;
+  
+            // Send Firebase notification to all deposit users
+            await sendFirebaseNotification(depositUser, 'حالة المزاد', message);
+  
+            // Create database notification
+            await Notification.create({
+              userId: depositUser._id,
+              message,
+              type: 'auction',
+            });
+          }
+          }
         await item.save({ validateBeforeSave: false });
         break;
       default:

@@ -109,7 +109,7 @@ const paymentSchema = new mongoose.Schema({
   timestamps: true
 });
 
-paymentSchema.index({ winnerid: 1 }, { unique: true });
+// paymentSchema.index({ winnerid: 1 }, { unique: true });
 
 paymentSchema.pre('save', async function(next) {
   this.populate({

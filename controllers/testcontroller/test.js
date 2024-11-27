@@ -2729,7 +2729,7 @@ exports.aggregateSubcategoryResults = async (req, res) => {
       ...pendingAndApproved,
       ...losers,
       ...rejected,
-      ...cancelled,
+      ...cancelledWithDeposit,
       ...inProgress,
       ...notStartedYet
     ];

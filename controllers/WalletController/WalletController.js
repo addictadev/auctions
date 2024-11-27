@@ -214,7 +214,7 @@ exports.addToWallet = async (req, res) => {
     if (req.headers.dashboard == '1') {
       
       // Customize the notification message for the dashboard action
-      notificationMessage = `تم رد المتبقي من التامين بمزاد ${subcategoryaa?.name} بملغ ${amount} الى المحفظة بعد الترسية`;
+      notificationMessage = `تم رد المتبقي من التامين بمزاد ${subcategoryaa?.name} بمبلغ ${amount} الى المحفظة بعد الترسية`;
      titleDashboard = `باقى مبلغ الترسية`;
 
     }

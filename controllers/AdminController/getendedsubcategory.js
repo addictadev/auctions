@@ -785,7 +785,7 @@ exports.adminActionOnWinner = async (req, res) => {
             await Notification.create({
               userId: depositUser._id,
               message,
-              type: 'auction',
+              type: 'cancelled',
             });
           }
           }

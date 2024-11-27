@@ -429,7 +429,7 @@ const approvePayment = async (req, res, next) => {
       
       const notification = new Notification({
         userId: payment.winnerid.userId._id,
-        message: `تم رفض استكمال الدفع لمزاد ${subcategoryName} بمبلغ ${payment.winnerid.totalAmount} لوجود خطاء بالبيانات:${message}.`,
+        message: `تم رفض استكمال الدفع لمزاد ${subcategoryName} بمبلغ ${payment.winnerid.totalAmount} لوجود خطأ بالبيانات ${message}`,
         // itemId: payment.itemId._id,
         type: 'payment',
       });

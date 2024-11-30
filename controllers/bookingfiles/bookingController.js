@@ -304,7 +304,7 @@ exports.bookFile = async (req, res, next) => {
     if (subc) {
       if (subc.endDate && subc.endDate < Date.now()) {
        return res.status(400).json({
-        message: 'المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد'
+        message: 'المزاد انتهى لا يمكنك شراء كراسة الشروط  بعد انتهاء المزاد'
       }); // Set amount to item's fileprice
       } 
     }

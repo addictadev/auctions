@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 // const Item = require('./subcategory'); // Adjust the path as needed
-const Subcategory = require('./subcategory');
+// const Subcategory = require('./subcategory');
 const bookingfile = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   item: { type: mongoose.Schema.Types.ObjectId, ref: 'Subcategory' },
@@ -50,6 +50,8 @@ bookingfile.pre('save', async function (next) {
   console.log("done");
 
   try {
+    const Subcategory = mongoose.model('Subcategory');
+
     // Fetch the item from Subcategory collection
     const item = await Subcategory.findById(this.item); // Ensure Subcategory is used here
     if (item) {

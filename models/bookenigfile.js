@@ -47,26 +47,26 @@ required: true,
 //   next();
 // });
 
-bookingfile.pre('save', async function (next) {
-  console.log("done");
+// bookingfile.pre('save', async function (next) {
+//   console.log("done");
 
-  try {
-    const Subcategory = mongoose.model('Subcategory');
+//   try {
+//     const Subcategory = mongoose.model('Subcategory');
 
-    // Fetch the item from Subcategory collection
-    const item = await Subcategory.findById(this.item); // Ensure Subcategory is used here
-    if (item) {
-      if (item.endDate && item.endDate > Date.now()) {
-        this.amount = item.fileprice; // Set amount to item's fileprice
-      } else {
-        return next(new CustomError('المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد', 400));
-      }
-    }
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
+//     // Fetch the item from Subcategory collection
+//     const item = await Subcategory.findById(this.item); // Ensure Subcategory is used here
+//     if (item) {
+//       if (item.endDate && item.endDate > Date.now()) {
+//         this.amount = item.fileprice; // Set amount to item's fileprice
+//       } else {
+//         return next(new CustomError('المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد', 400));
+//       }
+//     }
+//     next();
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 
 bookingfile.pre('find', function(next) {
   this.populate({

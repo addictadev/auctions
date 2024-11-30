@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 // const Item = require('./subcategory'); // Adjust the path as needed
 // const Subcategory = require('./subcategory');
-const CustomError = require('../utils/appError');
-
 const bookingfile = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   item: { type: mongoose.Schema.Types.ObjectId, ref: 'Subcategory' },
@@ -48,35 +46,6 @@ required: true,
 //   next();
 // });
 
-// bookingfile.pre('save', async function (next) {
-//   console.log("done");
-
-//   try {
-//     const Subcategory = mongoose.model('Subcategory');
-
-//     // Fetch the item from Subcategory collection
-//     const item = await Subcategory.findById(this.item); // Ensure Subcategory is used here
-//     if (item) {
-//       if (item.endDate && item.endDate > Date.now()) {
-//         this.amount = item.fileprice; // Set amount to item's fileprice
-//       } else {
-//       // return next(new CustomError('المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد', 400));
-//       return next(res.status(400).json({
-//         message: 'المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد'
-//       }));
-//         // throw new Error();
-//       }
-//     }
-//     next();
-//   } catch (error) {
-//     return next(res.status(400).json({
-//       message: 'المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد'
-//     }));
-
-//   }
-// });
-
-
 bookingfile.pre('save', async function (next) {
   console.log("done");
 
@@ -89,18 +58,14 @@ bookingfile.pre('save', async function (next) {
       if (item.endDate && item.endDate > Date.now()) {
         this.amount = item.fileprice; // Set amount to item's fileprice
       } else {
-        // Throw an error with a custom message
-        const error = new Error('المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد');
-        error.statusCode = 400; // Add a custom status code to the error
-        return next(error);
+        throw new Error('المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد');
       }
     }
     next();
   } catch (error) {
-    next(error); // Pass the error to the next middleware
+    next(error);
   }
 });
-
 
 bookingfile.pre('find', function(next) {
   this.populate({

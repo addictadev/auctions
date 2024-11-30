@@ -1187,6 +1187,7 @@ const logoutUser = catchAsync(async (req, res, next) => {
     await User.findByIdAndUpdate(userId, {
       isLogin: false,
       authToken: null,
+      fcmToken:null,
       deviceDetails: { deviceId: null, brand: null, model: null, version: null }
     });
 

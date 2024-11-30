@@ -69,7 +69,9 @@ bookingfile.pre('save', async function (next) {
     }
     next();
   } catch (error) {
-    return next(new CustomError('المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد', 400));
+    return next(res.status(400).json({
+      message: 'المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد'
+    }));
 
   }
 });

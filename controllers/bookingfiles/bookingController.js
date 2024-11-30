@@ -301,7 +301,7 @@ exports.bookFile = async (req, res, next) => {
     //   return next(new AppError('طلب شراء الكراسة موجود بالفعل', 400));
     // }
     const subc = await Subcategory.findById(itemId); // Ensure Subcategory is used here
-    if (item) {
+    if (subc) {
       if (subc.endDate && subc.endDate < Date.now()) {
        return res.status(400).json({
         message: 'المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد'

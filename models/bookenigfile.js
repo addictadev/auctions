@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 // const Item = require('./subcategory'); // Adjust the path as needed
 // const Subcategory = require('./subcategory');
+const CustomError = require('../utils/appError');
+
 const bookingfile = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   item: { type: mongoose.Schema.Types.ObjectId, ref: 'Subcategory' },
@@ -58,7 +60,9 @@ bookingfile.pre('save', async function (next) {
       if (item.endDate && item.endDate > Date.now()) {
         this.amount = item.fileprice; // Set amount to item's fileprice
       } else {
-        throw new Error('المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد');
+      return next(new CustomError('المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد', 400));
+
+        // throw new Error();
       }
     }
     next();

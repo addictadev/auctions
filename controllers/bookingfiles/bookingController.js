@@ -311,7 +311,7 @@ exports.bookFile = async (req, res, next) => {
     const newBooking = new Booking({
       userId,
       item: itemId,
-      amount:item.fileprice,
+      amount:subc.fileprice,
       billingmethod,
       billImage: req.body.billImage,
       seenByadmin: billingmethod === 'wallet',

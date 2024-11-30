@@ -60,8 +60,10 @@ bookingfile.pre('save', async function (next) {
       if (item.endDate && item.endDate > Date.now()) {
         this.amount = item.fileprice; // Set amount to item's fileprice
       } else {
-      return next(new CustomError('المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد', 400));
-
+      // return next(new CustomError('المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد', 400));
+      return next(res.status(400).json({
+        message: 'المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد'
+      }));
         // throw new Error();
       }
     }

@@ -9,6 +9,27 @@ const Payment = require('../../models/Payment');
 const { ObjectId } = require('mongodb');
 const Notification = require('../../models/notification');
 const admin = require('../../firebase/firebaseAdmin');  
+const Deposit = require('../../models/Deposit');
+const sendFirebaseNotification = async (user, title, body) => {
+  if (user && user.fcmToken) {
+    const message = {
+      notification: {
+        title,
+        body,
+      },
+      token: user.fcmToken,
+    };
+    try {
+      await admin.messaging().send(message);
+      console.log('Notification sent successfully');
+    } catch (error) {
+      console.error('Error sending notification:', error);
+    }
+  } else {
+    console.error('User FCM token not found or invalid');
+  }
+};
+
 exports.getEndedSubcategories = async (req, res) => {
   try {
     const endedSubcategories = await Subcategory.aggregate([
@@ -623,6 +644,9 @@ exports.getItemsBySubcategory = async (req, res) => {
 //     });
 //   }
 // };
+
+
+
 exports.adminActionOnWinner = async (req, res) => {
   const { winnerId, action } = req.body;
 
@@ -631,7 +655,7 @@ exports.adminActionOnWinner = async (req, res) => {
   }
 
   try {
-    const winner = await Winner.findById(winnerId).populate('userId').populate('itemId');
+    const winner = await Winner.findById(winnerId).populate('userId').populate('itemId').populate('subcategory');
     if (!winner) {
       return res.status(404).json({ status: 'error', message: 'Winner not found' });
     }
@@ -643,36 +667,94 @@ exports.adminActionOnWinner = async (req, res) => {
     const user = winner.userId;
     const item = winner.itemId;
     const subcategory = winner.subcategory;
+    const deposit = await Deposit.findOne({ userId: user, item: subcategory })
+    .select({ amount: 1, status: 1 });
     let message;
     let type;
-
-    // console.log(action);
+    const subcategoryResult = await SubcategoryResult.findOne({ userId: user._id, subcategory: subcategory,status: 'winner' });
+    const deposits = await Deposit.find({
+      item: subcategory,
+      status: { $in: [ 'approved', 'rejected', 'refunded', 'winner'] }
+    }).populate('userId');
+    console.log("deposits",deposits);
     // Perform admin action on the winner
     switch (action) {
       case 'approve':
         winner.adminApproval = true;
         winner.statusadmin = action;
-        message = 'Your winning bid has been approved.';
+        message =`🤩 مبرووك لقد فزت  ${winner.itemId.name} , بمزاد ${winner.subcategory.name} يمكنك الان استكمال الدفع والتوجه للاستلام.🤩`;
         type='winner';
+        if (subcategoryResult && subcategoryResult.results.includes(winner._id)) {
+          if (subcategoryResult.results.length > 0) {
+            const remainingWinners = await Winner.find({
+              _id: { $in: subcategoryResult.results }
+            });
+            let newTotalAmount = remainingWinners.reduce((sum, winner) => sum + winner.totalPaid, 0);
+            // Subtract deposit amount
+            console.log(newTotalAmount);
+
+            newTotalAmount -= deposit.amount;
+            console.log(newTotalAmount);
+            
+            
+            
+            
+            subcategoryResult.totalAmount = newTotalAmount;
+            await subcategoryResult.save({ validateBeforeSave: false });
+            console.log(subcategoryResult);
+
+
+
+          }
+        }
+        // Send notification to the winner only
+        await sendFirebaseNotification(user, 'حالة الترسية', message);
+        await Notification.create({
+          userId: user._id,
+          message,
+          type: 'winner',
+        });
+        break;
         break;
         case 'regected':
           case 'cancelled':
             winner.statusadmin = action;
             // winner.status = action;
             item.status = 'cancelled';
-            message = 'Your winning bid has been rejected or cancelled.';
-            
+            if (action=='regected'){
+              message = `لم يتم قبول السعر  ${winner.itemId.name} , بمزاد ${winner.subcategory.name}`;
+              await sendFirebaseNotification(user, 'حالة الترسية', message);
+              await Notification.create({
+                userId: user._id,
+                message,
+                type: 'reject',
+              });
+              }
             // Remove winner from SubcategoryResult
-            const subcategoryResult = await SubcategoryResult.findOne({ userId: user._id, subcategory: subcategory,status: 'winner' });
-            console.log("winner",winner._id)
-console.log(subcategoryResult.results)
+
+
 
 
         if (subcategoryResult && subcategoryResult.results.includes(winner._id)) {
-          console.log("done")
+   
           subcategoryResult.results.pull(winnerId);
-          subcategoryResult.totalAmount -= winner.totalPaid;
+          if (subcategoryResult.results.length > 0) {
+            const remainingWinners = await Winner.find({
+              _id: { $in: subcategoryResult.results }
+            });
+            let newTotalAmount = remainingWinners.reduce((sum, winner) => sum + winner.totalPaid, 0);
 
+            // Subtract deposit amount
+            newTotalAmount -= deposit.amount;
+
+
+
+            subcategoryResult.totalAmount = newTotalAmount;
+            await subcategoryResult.save({ validateBeforeSave: false });
+
+
+
+          }
           if (subcategoryResult.results.length === 0) {
             subcategoryResult.status = 'loser';
             subcategoryResult.totalAmount = 0;
@@ -687,7 +769,26 @@ console.log(subcategoryResult.results)
 
           await subcategoryResult.save({ validateBeforeSave: false });
         }
+        if (action=='cancelled'){
+    console.log("depositsssssssssssssss",deposits);
 
+          message = `تم إلغاء  ${winner.itemId.name}بمزاد ${winner.subcategory.name}.`;
+          for (const deposit of deposits) {
+            const depositUser = deposit.userId;
+            // Skip notifying the winner if it's the same user
+            // if (depositUser._id.toString() === user._id.toString()) continue;
+  
+            // Send Firebase notification to all deposit users
+            await sendFirebaseNotification(depositUser, 'حالة الترسية', message);
+  
+            // Create database notification
+            await Notification.create({
+              userId: depositUser._id,
+              message,
+              type: 'cancelled',
+            });
+          }
+          }
         await item.save({ validateBeforeSave: false });
         break;
       default:
@@ -698,35 +799,35 @@ console.log(subcategoryResult.results)
     await user.save({ validateBeforeSave: false });
 
     // Send notification using Firebase
-    if (user.fcmToken) {
-      const firebaseMessage = {
-        notification: {
-          title: 'Bid Status Update',
-          body: message,
-        },
-        token: user.fcmToken,
-      };
+    // if (user.fcmToken) {
+    //   const firebaseMessage = {
+    //     notification: {
+    //       title: 'حالة الدفع ',
+    //       body: message,
+    //     },
+    //     token: user.fcmToken,
+    //   };
     
-      try {
-        await admin.messaging().send(firebaseMessage);
-      } catch (firebaseError) {
-        // Handle specific FCM token errors
-        if (firebaseError.errorInfo.code === 'messaging/registration-token-not-registered') {
-          // Token is invalid, remove it from the user's record
-          user.fcmToken = null;
-          await user.save({ validateBeforeSave: false });
-          console.log(`Removed invalid FCM token for user ${user._id}`);
-        } else {
-          console.error('Error sending Firebase notification:', firebaseError);
-        }
-      }
-    }
+    //   try {
+    //     await admin.messaging().send(firebaseMessage);
+    //   } catch (firebaseError) {
+    //     // Handle specific FCM token errors
+    //     if (firebaseError.errorInfo.code === 'messaging/registration-token-not-registered') {
+    //       // Token is invalid, remove it from the user's record
+    //       user.fcmToken = null;
+    //       await user.save({ validateBeforeSave: false });
+    //       console.log(`Removed invalid FCM token for user ${user._id}`);
+    //     } else {
+    //       console.error('Error sending Firebase notification:', firebaseError);
+    //     }
+    //   }
+    // }
     // Create notification in the database
-    await Notification.create({
-      userId: user._id,
-      message,
-      type
-    });
+    // await Notification.create({
+    //   userId: user._id,
+    //   message,
+    //   type:'reject'
+    // });
 
     res.status(200).json({
       status: 'success',

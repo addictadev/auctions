@@ -56,15 +56,19 @@ exports.getCategory = async (req, res) => {
     let bookingStatus = 'false';
 
     if (userId) {
-      const booking = await Booking.findOne({ userId: userId, item: id }).populate('item');
+      const booking = await Booking.findOne({ userId: userId, item: id  }).populate('item').sort({ createdAt: -1 });
       
       if (booking) {
         bookingStatus = booking.status;
         subcategory = await Subcategory.findById(id).populate('items');
 
-        const deposit = await Deposit.findOne({ userId: userId, item: id });
+        const deposit = await Deposit.findOne({ userId: userId, item: id }).sort({ createdAt: -1 });
         if (deposit) {
+          if (deposit.status != 'rejected') {
+            // depositStatus = false;
           depositStatus = deposit.status;
+
+          }
         }
       } else {
         // User has no approved booking or no booking at all

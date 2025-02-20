@@ -20,12 +20,12 @@ const createMulterUpload = (filePath) => {
     // }
   };
 
-  const limits = {
-    fileSize: 1024 * 1024 * 1000, // 5MB file size limit
-  };
+  // const limits = {
+  //   fileSize: 1024 * 1024 * 1000, // 5MB file size limit
+  // };
 
   // return multer({ storage, fileFilter, limits });
-  return multer({ storage, limits });
+  return multer({ storage});
 
 };
 

@@ -1108,7 +1108,7 @@ const checkDepositAndItemStatus = async (socket, next) => {
 console.log(item.subcategoryId._id)
     const deposit = await Deposit.findOne({ userId, item: item.subcategoryId._id, status: 'approved' });
     if (!deposit) {
-      return next(new Error('User has not paid the deposit for this subcategory.'));
+      return next(new Error('يجب سداد التامين الابتدائى للدخول الى المزاد.'));
     }
     // const deposit = await Deposit.findOne({ userId, item: itemId, status: 'approved' });
     // if (!deposit) {
@@ -1118,13 +1118,13 @@ console.log(item.subcategoryId._id)
     // const item = await Item.findById(itemId);
     const now = new Date();
     if (!item) {
-      return next(new Error('Item not found.'));
+      return next(new Error('اللوط غير موجود.'));
     }
     if (item.startDate > now) {
-      return next(new Error('Auction for this item has not started yet.'));
+      return next(new Error('المزاد لم يبداء بعد .'));
     }
     if (item.endDate <= now) {
-      return next(new Error('Auction for this item has ended.'));
+      return next(new Error('المزاد انتهى.'));
     }
     socket.item = item;
     socket.userId = userId;
@@ -1305,20 +1305,20 @@ const checkAuctionEnd = async () => {
     const winnerBid = bids[0];
     const deposits = await Deposit.find({ item: item._id, status: 'approved' });
 console.log(deposits);
-    if (winnerBid) {
-      const winnerNotification = new Notification({
-        userId: winnerBid.userId,
-        message: `Congratulations! You have won the auction for item ${item.name} with a bid of ${winnerBid.amount}.`,
-        itemId: item._id,
-        type:'winner'
+    // if (winnerBid) {
+    //   const winnerNotification = new Notification({
+    //     userId: winnerBid.userId,
+    //     message: `مبرووك! لقد فزت بلوط ${item.name} بقيمة ${winnerBid.amount}.`,
+    //     itemId: item._id,
+    //     type:'winner'
 
-      });
-      await winnerNotification.save();
+    //   });
+    //   await winnerNotification.save();
 
-      auctionNamespace.to(item._id.toString()).emit('auctionEnded', {
-        message: `Auction for item ${item.name} has ended. Winner: ${winnerBid.userId}, Amount: ${winnerBid.amount}`,
-      });
-    }
+    //   auctionNamespace.to(item._id.toString()).emit('auctionEnded', {
+    //     message: `المزاد انتهي للوط ${item.name} . الفائز: ${winnerBid.userId}, بقيمة: ${winnerBid.amount}`,
+    //   });
+    // }
 
     const endNotifications = deposits.map(deposit => {
       const notification = new Notification({
@@ -1989,13 +1989,13 @@ const createAuctionNamespace = (io) => {
 
         const timeRemaining = item.subcategoryId.endDate - now;
         const tenMinutes = 10 * 60 * 1000;
-        const twentyMinutes = 20 * 60 * 1000;
+        const twentyMinutes = 10 * 60 * 1000;
 
         // Extend the auction end time if less than ten minutes remain
-        if (timeRemaining <= tenMinutes) {
+        if (timeRemaining <= tenMinutes && item.count_increment <= 4) {
           item.subcategoryId.endDate = new Date(new Date(item.subcategoryId.endDate).getTime() + twentyMinutes).toISOString();
           item.minBidIncrement *= 2;
-
+          item.count_increment += 1;
           await item.subcategoryId.save({ session });
           auctionNamespace.to(itemId).emit('auctionExtended', {
             item: item,
@@ -2015,7 +2015,7 @@ const createAuctionNamespace = (io) => {
         const notificationPromises = deposits.map(deposit => {
           const notification = new Notification({
             userId: deposit.userId,
-            message: `A new bid of ${amount} has been placed on item ${item.name} in subcategory ${item.subcategoryId.name}`,
+            message: `متزايد قام برفع السعر بقيمة  ${amount} على  ${item.name} بمزاد ${item.subcategoryId.name}`,
             itemId,
             type: 'bid'
           });
@@ -2034,8 +2034,8 @@ const createAuctionNamespace = (io) => {
         if (fcmTokens.length > 0) {
           const message = {
             notification: {
-              title: 'New Bid Placed',
-              body: `A new bid of ${amount} has been placed on item ${item.name} in subcategory ${item.subcategoryId.name}`,
+              title: 'مزايدة جديدة',
+              body: `متزايد قام برفع السعر بقيمة ${amount} على  ${item.name} بمزاد ${item.subcategoryId.name}`,
             },
             tokens: fcmTokens,
           };

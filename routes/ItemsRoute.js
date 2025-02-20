@@ -74,7 +74,7 @@ next()
 
 
 // ,checkPermission()
-router.get('/',getAllitems );
+router.get('/',authMiddleware,getAllitems );
 router.get('/:id', getitems);
 
 

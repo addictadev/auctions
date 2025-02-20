@@ -8,7 +8,9 @@ const walletChargerSchema = new mongoose.Schema({
     type: { name: String, path: String, pathname: String },
     required: true,
   },
-  amount: { type: Number }, // This will be set by admin
+  amount: { type: Number },
+  createdAt: { type: Date, default: Date.now }
+   // This will be set by admin
 }, {
   timestamps: true,
 });

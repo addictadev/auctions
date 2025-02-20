@@ -179,10 +179,16 @@ const Notification = require('../../models/notification');
 const AppError = require('../../utils/appError');
 const admin = require('../../firebase/firebaseAdmin'); // Firebase Admin SDK
 const factory = require('../../utils/apiFactory');
+const AdminNotification = require('../../models/adminNotificationModel'); 
+const subcategory = require('../../models/subcategory');
 
 const getprocessPayment = factory.getAll(Payment);
 // Helper function to send Firebase notifications
-const sendFirebaseNotification = async (user, title, body) => {
+const sendFirebaseNotification = async (userfcmtoken, title, body) => {
+  const user= await User.findById(userfcmtoken)
+  console.log("fmctoken",user.fcmToken)
+  console.log("user",user)
+
   if (user && user.fcmToken) {
     const message = {
       notification: {
@@ -248,33 +254,60 @@ const processPayment = async (req, res, next) => {
       if (user.walletBalance < dueAmount) {
         await session.abortTransaction();
         session.endSession();
-        return next(new AppError('Insufficient balance', 400));
+        return next(new AppError('رصيد المحفظة لا يكفي برجاء اعادة الشحن للاستمرار', 400));
       }
 
       user.walletBalance -= dueAmount;
-      user.walletTransactions.push({ amount: dueAmount, type: 'payment', description: `Payment for item ${item.name}` });
+      user.walletTransactions.push({ amount: dueAmount, type: 'payment', description: `طلب استكمال الدفع ${item.name}` });
       await user.save({ session, validateBeforeSave: false });
     }
 
     await payment.save({ session });
+    // ? `تمت معالجة الدفع بمبلغ ${dueAmount} بنجاح للبند ${item.name} بواسطة المستخدم ${userId}.`
+    // : `تم تقديم طلب دفع للبند ${item.name} ويتطلب موافقة الإدارة.`,
+    const subcategoryaa = await subcategory.findById(item.subcategoryId).select('name').session(session);
 
+    if (!subcategoryaa) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({ message: 'Subcategory not found.' });
+    }
+
+    const subcategoryName = subcategoryaa.name;
     const notification = new Notification({
       userId,
       message: billingMethod === 'wallet'
-        ? `Your payment of ${dueAmount} for ${item.name} was successful.`
-        : `Your payment for ${item.name} is pending admin approval.`,
+      ? `تم استكمال دفع المزاد بنجاح`
+      : ` تم ارسال طلب استكمال الدفع بمزاد ${subcategoryName}.`,
       itemId,
-      type: 'payment',
+      type: 'winner',
     });
 
-    await sendFirebaseNotification(user, 'Payment Successful', notification.message);
+    await sendFirebaseNotification(user, 'طلب استكمال الدفع', notification.message);
     await notification.save({ session });
+
+    const adminNotificationMessage = billingMethod === 'wallet'
+      ? `تمت معالجة الدفع بمبلغ ${dueAmount} بنجاح للبند ${item.name} بواسطة المستخدم ${user?.phoneNumber}.`
+      // : ` تم تقديم طلب دفع للبند ${item.name} من المستخدم   ويتطلب موافقة الإدارة.`;
+      : `   تم تقديم طلب دفع بمبلغ  ${dueAmount} بنجاح للبند ${item.name} بواسطة المستخدم : ${user?.phoneNumber}`;
+
+      
+    const adminNotification = new AdminNotification({
+      user,
+      title: 'إشعار دفع جديد',
+      message: adminNotificationMessage,
+    });
+
+    await adminNotification.save({ session });
+
+
 
     await session.commitTransaction();
     session.endSession();
 
     res.status(201).json({ status: 'success', data: payment });
   } catch (error) {
+    console.log(error)
     await session.abortTransaction();
     session.endSession();
     if (error.code === 11000) {
@@ -342,7 +375,17 @@ const approvePayment = async (req, res, next) => {
   session.startTransaction();
   try {
     const { paymentId, action,message } = req.body;
-    const payment = await Payment.findById(paymentId)
+    // const payment = await Payment.findById(paymentId)
+    //   .populate({
+    //     path: 'winnerid',
+    //     populate: {
+    //       path: 'userId',
+    //       select: 'name phoneNumber',
+    //     },
+    //   })
+      // .populate('itemId') // Assuming `itemId` exists in your Payment schema
+      // .session(session);
+      const payment = await Payment.findById(paymentId)
       .populate({
         path: 'winnerid',
         populate: {
@@ -350,36 +393,50 @@ const approvePayment = async (req, res, next) => {
           select: 'name phoneNumber',
         },
       })
-      // .populate('itemId') // Assuming `itemId` exists in your Payment schema
+      .populate({
+        path: 'winnerid.subcategory',  // Populate the subcategory here
+        select: 'name',
+      })
       .session(session);
+      const subcategoryId = payment.winnerid.subcategory;
 
     if (!payment || payment.status !== 'pending') {
       await session.abortTransaction();
       session.endSession();
       return res.status(400).json({ message: 'Invalid payment or payment is not pending.' });
     }
+   
+    const subcategorya = await subcategory.findById(subcategoryId).select('name').session(session);
 
+    if (!subcategorya) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({ message: 'Subcategory not found.' });
+    }
+
+    const subcategoryName = subcategorya.name;
     if (action === 'approve') {
       payment.status = 'completed';
       const notification = new Notification({
         userId: payment.winnerid.userId._id,
-        message: `Your payment of ${payment.winnerid.totalAmount} for item has been approved message:${message}.`,
+        message: `مبرووك تم تاكيد استكمال الدفع لمزاد ${subcategoryName} بمبلغ ${payment.winnerid.totalAmount} يمكنك الاستلام الان  :  
+        ${message}.`,
         // itemId: payment.itemId._id,
         type: 'payment',
       });
       await notification.save({ session });
-      await sendFirebaseNotification(payment.winnerid.userId, `Payment Approved message:${message}`, notification.message);
+      await sendFirebaseNotification(payment.winnerid.userId, `تاكيد استكمال الدفع`, notification.message);
     } else if (action === 'reject') {
      await Payment.findByIdAndDelete(paymentId)    
       
       const notification = new Notification({
         userId: payment.winnerid.userId._id,
-        message: `Your payment of ${payment.winnerid.totalAmount} for item has been rejected. Payment Approved message:${message}`,
+        message: `تم رفض استكمال الدفع لمزاد ${subcategoryName} بمبلغ ${payment.winnerid.totalAmount} لوجود خطأ بالبيانات ${message}`,
         // itemId: payment.itemId._id,
         type: 'payment',
       });
+      await sendFirebaseNotification(payment.winnerid.userId, `تم رفض استكمال الدفع `, notification.message);
       await notification.save({ session });
-      await sendFirebaseNotification(payment.winnerid.userId, `Payment Rejected ${message}`, notification.message);
     } else {
       await session.abortTransaction();
       session.endSession();
@@ -393,6 +450,7 @@ const approvePayment = async (req, res, next) => {
 
     res.status(200).json({ message: `Payment has been ${payment.status}.` });
   } catch (error) {
+    console.log(error)
     await session.abortTransaction();
     session.endSession();
     res.status(500).json({ error: error.message });

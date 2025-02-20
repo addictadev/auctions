@@ -46,7 +46,12 @@ const sendErrorProd = (err, res) => {
   } else {
     // 1) Log error
     console.error('ERROR 💥', err);
-
+    if (err.message.includes('المزاد انتهى لا يمكنك شراء كراسة')) {
+      return res.status(err.statusCode || 400).json({
+        status: 'error',
+        message: 'المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد'
+      });
+    }
     // 2) Send generic message
     res.status(500).json({
       status: 'error',

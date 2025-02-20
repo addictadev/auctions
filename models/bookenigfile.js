@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const Item = require('./subcategory'); // Adjust the path as needed
+// const Item = require('./subcategory'); // Adjust the path as needed
+const CustomError = require('../utils/appError');
 
 const bookingfile = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
@@ -27,24 +28,45 @@ required: true,
 });
 
 // Creating a compound index on userId and item to ensure uniqueness
-bookingfile.index({ userId: 1, item: 1 }, { unique: true });
+// bookingfile.index({ userId: 1, item: 1,billingmethod:1 }, { unique: true });
 
-bookingfile.pre('save', async function (next) {
-  // Check if amount is not set or is set to 0
-  console.log("done");
+// bookingfile.pre('save', async function (next) {
+//   // Check if amount is not set or is set to 0
+//   console.log("done");
 
-  // You can add your logic here to calculate or set the amount based on userId, item, etc.
-  // const item = await Item.findById(this.item);
-  // if (item) {
-  //   if (item.endDate && item.endDate > Date.now()) {
-  //     this.amount = item.deposit; // Set amount to item's depositAmount if not expired
-  //   } else {
-  //     throw new Error('Item is expired');
-  //   }
-  // }
+//   // You can add your logic here to calculate or set the amount based on userId, item, etc.
+//   const item = await Item.findById(this.item);
+//   if (item) {
+//     if (item.endDate && item.endDate > Date.now()) {
+//       this.amount = item.fileprice; // Set amount to item's depositAmount if not expired
+//     } else {
+//       throw new Error('المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد');
+//     }
+//   }
 
-  next();
-});
+//   next();
+// });
+
+// bookingfile.pre('save', async function (next) {
+//   console.log("done");
+
+//   try {
+//     const Subcategory = mongoose.model('Subcategory');
+
+//     // Fetch the item from Subcategory collection
+//     const item = await Subcategory.findById(this.item); // Ensure Subcategory is used here
+//     if (item) {
+//       if (item.endDate && item.endDate > Date.now()) {
+//         this.amount = item.fileprice; // Set amount to item's fileprice
+//       } else {
+//         return next(new CustomError('المزاد انتهى لا يمكنك شراء كراسة بعد انتهاء المزاد', 400));
+//       }
+//     }
+//     next();
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 
 bookingfile.pre('find', function(next) {
   this.populate({

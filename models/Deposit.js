@@ -102,7 +102,7 @@ const depositSchema = new mongoose.Schema({
 });
 
 // Creating a compound index on userId and item to ensure uniqueness
-depositSchema.index({ userId: 1, item: 1 }, { unique: true });
+// depositSchema.index({ userId: 1, item: 1 }, { unique: true });
 
 depositSchema.pre('save', async function (next) {
   // Check if amount is not set or is set to 0

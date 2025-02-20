@@ -2146,6 +2146,7 @@ const SubcategoryResult = require('../models/SubcategoryResult');
 const mongoose = require('mongoose');
 const admin = require('../firebase/firebaseAdmin'); 
 const logger = require('../logger'); // Import the logger
+const AdminNotification = require('../models/adminNotificationModel');
 
 const notifyAuctionEvents = async (notificationNamespace) => {
   const session = await mongoose.startSession();
@@ -2179,8 +2180,8 @@ const processStartingSubcategories = async (now, notificationNamespace, session)
     if (fcmTokens.length > 0) {
       const message = {
         notification: {
-          title: 'Auction Started',
-          body: `The auction for subcategory ${subcategory.name} has started and will end at ${subcategory.endDate.toLocaleTimeString()}.`,
+          title: 'المزاد بداء',
+          body: `اللوط بمزاد ${subcategory.name} بداء وسيتم انتهاء المزاد فى  ${subcategory.endDate.toLocaleTimeString()}.`,
         },
         tokens: fcmTokens,
       };
@@ -2196,20 +2197,26 @@ const processStartingSubcategories = async (now, notificationNamespace, session)
     const startNotifications = deposits.map(async (deposit) => {
       const notification = new Notification({
         userId: deposit.userId,
-        message: `The auction for subcategory ${subcategory.name} has started.`,
+        message: `اللوط بمزاد ${subcategory.name} بداء الان.`,
         itemId: subcategory._id,
         type: 'auction'
       });
       await notification.save({ session });
 
       notificationNamespace.to(`user_${deposit.userId._id}`).emit('notification', {
-        message: `The auction for subcategory ${subcategory.name} has started and will end at ${subcategory.endDate.toLocaleTimeString()}.`,
+        message: `بدأت المزاد الفرعي  ${subcategory.name} الآن وسينتهي في  ${subcategory.endDate.toLocaleTimeString()}.`,
         subcategory: subcategory,
       });
     });
 
     await Promise.all(startNotifications);
-
+    const adminNotificationMessage = `بدأت المزاد الفرعي ${subcategory.name} الآن وسينتهي في ${subcategory.endDate.toLocaleTimeString()}.`;
+    const adminNotification = new AdminNotification({
+      title: 'إشعار بدء مزاد فرعي',
+      message: adminNotificationMessage,
+    });
+console.log("adminNotification",adminNotification);
+    await adminNotification.save({validateBeforeSave:false  });
     subcategory.notifiedStart = true;
     await subcategory.save({ session });
   }
@@ -2442,8 +2449,8 @@ const processEndingSubcategories = async (now, notificationNamespace, session) =
       if (fcmTokens.length > 0) {
         const message = {
           notification: {
-            title: 'Auction Ended',
-            body: `The auction for subcategory ${subcategory.name} has ended.`,
+            title: 'المزاد انتهى',
+            body: `انتهى مزاد ${subcategory.name} وجارى اعتماد الاسعار للترسية.`,
           },
           tokens: fcmTokens,
         };
@@ -2465,18 +2472,25 @@ const processEndingSubcategories = async (now, notificationNamespace, session) =
       const endNotifications = depositsForNotifications.map(async (deposit) => {
         const auctionEnded = new Notification({
           userId: deposit.userId,
-          message: `The auction for subcategory ${subcategory.name} has ended.`,
+          message: `انتهى المزاد ${subcategory.name} وجارى اعتماد الاسعار للترسية.`,
           itemId: subcategory._id,
-          type: 'auction'
+          type: 'payment'
         });
         await auctionEnded.save({ session });
 
         notificationNamespace.to(`user_${deposit.userId._id}`).emit('notification', {
-          message: `The auction for subcategory ${subcategory.name} has ended.`,
+          message: `انتهى المزاد  ${subcategory.name} وجارى اعتماد الاسعار للترسية.`,
         });
       });
 
       await Promise.all(endNotifications);
+      const adminNotificationMessage = `انتهى المزاد الفرعي ${subcategory.name}.`;
+      const adminNotification = new AdminNotification({
+        title: 'إشعار انتهاء مزاد فرعي',
+        message: adminNotificationMessage,
+      });
+
+      await adminNotification.save({ session });
     }
   } catch (error) {
     console.error('Error processing ending subcategories:', error);
@@ -2613,15 +2627,19 @@ const handleWinner = async (item, winnerBid, subcategory, notificationNamespace,
   if (!item.notifiedWinner) {
     const winnerNotification = new Notification({
       userId: winnerBid.userId,
-      message: `Congratulations! You have won the auction for item ${item.name} in subcategory ${subcategory.name} with a bid of ${winnerBid.amount}.`,
+      // message: `مبرووك لقد فزت باللوط ${item.name} بمزاد  ${subcategory.name} بسعر ${winnerBid.amount}.`,
+      message: `انتهى المزاد ${subcategory.name}  وانت اعلى سعر فى  ${item.name} وجارى اعتماد الاسعار `,
+      
       itemId: item._id,
-      type: 'winner'
+      type: 'payment'
     });
     await winnerNotification.save({ session });
 
     // Emit notification to the user's socket channel
     notificationNamespace.to(`user_${winnerBid.userId}`).emit('notification', {
-      message: `Congratulations! You have won the auction for item ${item.name} in subcategory ${subcategory.name} with a bid of ${winnerBid.amount}.`,
+      // message: `مبرووك لقد فزت باللوط  ${item.name} بمزاد ${subcategory.name} بسعر ${winnerBid.amount}.`,
+      message: `انتهى المزاد ${subcategory.name}  وانت اعلى سعر فى  ${item.name} وجارى اعتماد الاسعار `,
+
     });
 
     // If the user has an FCM token, send a push notification
@@ -2629,11 +2647,18 @@ const handleWinner = async (item, winnerBid, subcategory, notificationNamespace,
     if (user && user.fcmToken) {
       const message = {
         notification: {
-          title: 'You Won!',
-          body: `You have won the auction for item ${item.name} in subcategory ${subcategory.name} with a bid of ${winnerBid.amount}.`,
+          title: `انتهى المزاد ${subcategory.name} `,
+          body: `انت اعلى سعر فى ${item.name} مزاد ${subcategory.name} وجارى اعتماد الاسعار`
+
+          // body: `مبرووك لقد فزت باللوط ${item.name} بمزاد ${subcategory.name} بسعر ${winnerBid.amount}.`,
         },
         token: user.fcmToken,
       };
+      try {
+        await admin.messaging().send(message);
+      } catch (error) {
+        console.error(`Failed to send notification to user ${user._id}: ${error.message}`);
+      }
       // await admin.messaging().send(message);
     }
 
@@ -2649,6 +2674,15 @@ const handleWinner = async (item, winnerBid, subcategory, notificationNamespace,
     });
     await winnerEntry.save({ session });
 
+
+
+
+    const adminNotificationMessage = `فاز المستخدم ${user?.phoneNumber} بالمزاد للبند ${item.name} في الفئة الفرعية ${subcategory.name}.`;
+    const adminNotification = new AdminNotification({
+      title: 'إشعار فوز جديد بالمزاد',
+      message: adminNotificationMessage,
+    });
+    await adminNotification.save({ session });
     // Update item status and mark as notified
     item.notifiedWinner = true;
     item.status = 'completed';
@@ -2886,7 +2920,7 @@ const handleLosers = async (item, winnerBid, subcategory, notificationNamespace,
         user.walletTransactions.push({
           amount: deposit.amount,
           type: 'refund',
-          description: `Refund for item ${item.name} in subcategory ${subcategory.name}`,
+          description: `استرداد باقى التامين  ${item.name} فى مزاد ${subcategory.name}`,
         });
 
         deposit.status = 'refunded';
@@ -2904,14 +2938,14 @@ const handleLosers = async (item, winnerBid, subcategory, notificationNamespace,
       await loserEntry.save({ session });
 
       notificationNamespace.to(`user_${deposit.userId._id}`).emit('notification', {
-        message: `The auction for item ${item.name} in subcategory ${subcategory.name} has ended. Your deposit has been refunded.`,
+        message: `انتهى المزاد  ${subcategory.name} وجارى اعتماد الاسعار للترسية.`,
       });
 
       if (user && user.fcmToken) {
         const message = {
           notification: {
-            title: 'Auction Ended',
-            body: `The auction for item ${item.name} in subcategory ${subcategory.name} has ended. Your deposit has been refunded.`,
+            title: 'انتهي المزاد',
+            body: `انتهى المزاد  ${subcategory.name} وجارى اعتماد الاسعار للترسية.`,
           },
           token: user.fcmToken,
         };

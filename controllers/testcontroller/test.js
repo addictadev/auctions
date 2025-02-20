@@ -885,7 +885,7 @@ exports.SubcategoryResult = async (req, res) => {
       },
       {
         $addFields: {
-          totalAmount: {
+          totalAmountfromresulte: {
             $sum: {
               $map: {
                 input: '$winnerDetails',
@@ -998,7 +998,10 @@ exports.SubcategoryResult = async (req, res) => {
               then: true,
               else: false
             }
-          }
+          },
+          
+            totalAmount: "$totalAmount" // Simply add totalAmount field here from SubcategoryResult
+          
         }
       },
       {
@@ -1009,6 +1012,7 @@ exports.SubcategoryResult = async (req, res) => {
           categoryName: '$categoryDetails.name',
           deposit: '$subcategoryDetails.deposit',
           totalAmount: 1,
+          totalAmountfromresulte:1,
           payed: 1,
           items: 1,
           refund: 1, // Include refund status
@@ -2587,7 +2591,7 @@ exports.aggregateSubcategoryResults = async (req, res) => {
 
     // Fetch cancelled auctions
     const cancelled = await Winner.aggregate([
-      { $match: { userId, status: 'cancelled' } },
+      { $match: { userId, statusadmin: 'cancelled' } },
       {
         $lookup: {
           from: 'subcategories',
@@ -3795,7 +3799,7 @@ exports.getItemBidDetails2 = async (req, res) => {
               }
             }
           },
-          totalAmount: {
+          totalAmountresult: {
             $sum: {
               $map: {
                 input: '$winnerDetails',
@@ -3815,6 +3819,7 @@ exports.getItemBidDetails2 = async (req, res) => {
               }
             }
           },
+          totalAmount: "$totalAmount",
           payed: {
             $cond: {
               if: {
@@ -3871,6 +3876,7 @@ exports.getItemBidDetails2 = async (req, res) => {
           approvedWinnerCount: 1,
           pendingWinnerCount: 1,
           loserCount: 1,
+          totalAmountresult:1,
           cancelledCount: 1,
           inProgressCount: 1,
           totalAmount: 1,

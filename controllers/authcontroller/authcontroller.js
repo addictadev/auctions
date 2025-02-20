@@ -327,12 +327,12 @@ const registerUser = async (req, res, next) => {
     
     const existingUser = await User.findOne({ $or: [{ idNumber }, { phoneNumber }] });
     if (existingUser) {
-      return next(new AppError('User already exists', 400));
+      return next(new AppError('المستخدم موجود بالفعل', 400));
     }
 
     const existingIdUser = await User.findOne({ idNumber });
     if (existingIdUser) {
-      return next(new AppError('User with this ID number already exists', 400));
+      return next(new AppError('المستخدم موجود بالفعل', 400));
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
@@ -356,13 +356,13 @@ const registerUser = async (req, res, next) => {
     } catch (error) {
       await User.findByIdAndDelete(newUser._id);
       await OTP.deleteMany({ userId: newUser._id });
-      return next(new AppError('Failed to send OTP. Registration not completed.', 500));
+      return next(new AppError('فشل في ارسال كود التفعيل .', 500));
     }
 
     res.status(201).json({
       status: "success",
       data: {
-        message: 'User registered successfully. Please verify your phone number ,otp valid for 10 minutes.',
+        message: 'تم ارسال رمز التحقق (OTP) برجاء الانتظار دقائق لحين وصوله اليك',
         userId: newUser._id
       }
     });
@@ -379,25 +379,25 @@ const verifyOTP = async (req, res, next) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return next(new AppError('User not found', 404));
+      return next(new AppError('المستخدم غير موجود', 404));
     }
 
     if (user.verified) {
-      return res.status(400).json({ status: 'fail', message: 'User is already verified' });
+      return res.status(400).json({ status: 'fail', message: 'المستخدم تم تفعيله بالفعل' });
     }
 
     const otpRecord = await OTP.findOne({ userId, otpCode });
 
     if (!otpRecord || otpRecord.expiresAt < Date.now()) {
-      return next(new AppError('Invalid or expired OTP', 400));
+      return next(new AppError('رمز التحقق خطأ او منتهى الصلاحية', 400));
     }
 
     await User.findByIdAndUpdate(userId, { verified: true });
     await OTP.deleteMany({ userId });
 
-    return res.status(200).json({ status: "success", data: { message: 'Phone number verified successfully' } });
+    return res.status(200).json({ status: "success", data: { message: "تم التحقق من رقم الهاتف بنجاح" } });
   } catch (error) {
-    next(new AppError('Server error during OTP verification', 500));
+    next(new AppError('خطاء فى السيرفر اثناء تفعيل المستخدم', 500));
   }
 };
 
@@ -432,11 +432,11 @@ const verifyOTPAdmin = async (req, res, next) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return next(new AppError('User not found', 404));
+      return next(new AppError('المستخدم غير موجود', 404));
     }
 
     if (user.verified) {
-      return res.status(400).json({ status: 'fail', message: 'User is already verified' });
+      return res.status(400).json({ status: 'fail', message: ' تم التحقق من رقم الهاتف بنجاح' });
     }
 
     const otpRecord = await OTP.findOne({ userId });
@@ -446,9 +446,9 @@ const verifyOTPAdmin = async (req, res, next) => {
     await User.findByIdAndUpdate(userId, { verified: true });
     await OTP.deleteMany({ userId });
 
-    return res.status(200).json({ status: "success", data: { message: 'Phone number verified successfully' } });
+    return res.status(200).json({ status: "success", data: { message: 'تم التحقق من رقم الهاتف بنجاح' } });
   } catch (error) {
-    next(new AppError('Server error during OTP verification', 500));
+    next(new AppError('حدث خطاء اثناء تاكيد كود التحقق ', 500));
   }
 };
 
@@ -479,16 +479,16 @@ const resendOTP = async (req, res, next) => {
     const user = await User.findById(userId);
 console.log(user)
     if (!user) {
-      return next(new AppError('User not found', 404));
+      return next(new AppError('المستخدم غير موجود', 404));
     }
     if (user.verified) {
-      return next(new AppError('User already verified', 404));
+      return next(new AppError('المستخدم تم تفعيله بالفعل', 404));
     }
     // Check if an OTP was sent in the last 3 minutes
     const lastOTP = await OTP.findOne({ userId }).sort({ createdAt: -1 });
 console.log(lastOTP)
     if (lastOTP && (Date.now() - new Date(lastOTP.createdAt).getTime()) < 3 * 60 * 1000) {
-      return next(new AppError('OTP was already sent within the last 3 minutes. Please wait before requesting a new OTP.', 429));
+      return next(new AppError('تم ارسال رمز التحقق (OTP)بالفعل برجاء الانتظار ٣ دقائق قبل الضغط على اعادة الارسال  ', 429));
     }
 
     // Remove any previous OTPs for the user
@@ -506,17 +506,17 @@ console.log(lastOTP)
       await sendOTP(user.phoneNumber, otpCode);
     } catch (error) {
       await OTP.deleteMany({ userId: user._id });
-      return next(new AppError('Failed to resend OTP.', 500));
+      return next(new AppError('فشل فى ارسال الكود.', 500));
     }
 
     res.status(200).json({
       status: "success",
       data: {
-        message: 'OTP has been resent successfully valid for 10 minutes.'
+        message: 'جارى ارسال رمز التحقق (OTP)'
       }
     });
   } catch (error) {
-    next(new AppError('Server error during OTP resend', 500));
+    next(new AppError('فشل فى ارسال الكود.', 500));
   }
 };
 
@@ -718,6 +718,108 @@ console.log(lastOTP)
 
 
 
+// const loginUser = catchAsync(async (req, res, next) => {
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+
+//   try {
+//     const { phoneNumber, password, idNumber, fcmToken, deviceDetails } = req.body;
+
+//     if (!phoneNumber && !idNumber) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return next(new AppError('Phone number or ID number must be provided', 400));
+//     }
+
+//     let query;
+//     if (idNumber) {
+//       if (idNumber.length > 14) {
+//         await session.abortTransaction();
+//         session.endSession();
+//         return next(new AppError('Invalid ID number', 400));
+//       }
+//       query = { idNumber: idNumber };
+//     } else {
+//       query = { phoneNumber: phoneNumber };
+//     }
+//     console.log(query)
+
+//     const user = await User.findOne(query).select('+passwordHash').session(session);
+//     console.log(user)
+//     if (!user) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return next(new AppError('Invalid credentials', 400));
+//     }
+
+//     if (fcmToken) {
+//       user.fcmToken = fcmToken;
+//       await user.save({ session, validateBeforeSave: false });
+//     }
+
+//     const isMatch = await bcrypt.compare(password, user.passwordHash);
+//     if (!isMatch) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return next(new AppError('Invalid credentials', 400));
+//     }
+
+//     if (!user.verified) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return next(new AppError('Please verify your phone number first', 406));
+//     }
+
+//     if (user.blocked) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return next(new AppError('You are blocked', 400));
+//     }
+
+//     if (!user.approved) {
+//       await session.abortTransaction();
+//       session.endSession();
+//       return next(new AppError('Your account has not been approved by the admin yet', 400));
+//     }
+
+//     // Check if the user is already logged in from another device
+//     console.log("deviceDetails",user.deviceDetails)
+//     console.log(" Object.keys(user.deviceDetails)", Object.keys(user.deviceDetails))
+//     console.log(" Object.keys(user)", Object.keys(user.deviceDetails).length !== 0)
+
+
+//     if (
+//       // user.deviceDetails && 
+//       // Object.keys(user.deviceDetails).length !== 0 && 
+//       // deviceDetails && 
+//       // user.deviceDetails.deviceId && 
+//       // deviceDetails.deviceId && 
+//       user.deviceDetails.deviceId !== null&&user.deviceDetails.deviceId !== deviceDetails.deviceId
+//     ) {
+//       // Clear the authToken if user is trying to log in from another device
+//       // user.authToken = null;
+//       await user.save({ session, validateBeforeSave: false });
+//       await session.commitTransaction();
+//       session.endSession();
+//       return next(new AppError('You are already logged in from another device', 400));
+//     }
+//     user.deviceDetails = deviceDetails;
+//     await user.save({ session, validateBeforeSave: false });
+
+//     await createSendToken(user, 200, res, session);
+
+//     await session.commitTransaction();
+//     session.endSession();
+//   } catch (error) {
+//     await session.abortTransaction();
+//     session.endSession();
+//     return next(new AppError(`Server error during login: ${error.message}`, 500));
+//   }
+// });
+
+
+
+
 const loginUser = catchAsync(async (req, res, next) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -728,84 +830,68 @@ const loginUser = catchAsync(async (req, res, next) => {
     if (!phoneNumber && !idNumber) {
       await session.abortTransaction();
       session.endSession();
-      return next(new AppError('Phone number or ID number must be provided', 400));
+      return next(new AppError('رقم الهاتف أو رقم الهوية مطلوب', 400));
     }
 
-    let query;
-    if (idNumber) {
-      if (idNumber.length > 14) {
-        await session.abortTransaction();
-        session.endSession();
-        return next(new AppError('Invalid ID number', 400));
-      }
-      query = { idNumber: idNumber };
-    } else {
-      query = { phoneNumber: phoneNumber };
-    }
-    console.log(query)
+    const query = idNumber 
+    ? { idNumber } 
+    : { phoneNumber };
 
+    // : { $or: [{ phoneNumber }, { altphoneNumber: phoneNumber }] };
     const user = await User.findOne(query).select('+passwordHash').session(session);
-    console.log(user)
+    
     if (!user) {
       await session.abortTransaction();
       session.endSession();
-      return next(new AppError('Invalid credentials', 400));
-    }
-
-    if (fcmToken) {
-      user.fcmToken = fcmToken;
-      await user.save({ session, validateBeforeSave: false });
+      return next(new AppError('برجاء التاكد من صحة البيانات', 400));
     }
 
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
       await session.abortTransaction();
       session.endSession();
-      return next(new AppError('Invalid credentials', 400));
+      return next(new AppError('برجاء التاكد من صحة كلمة المرور', 400));
     }
 
     if (!user.verified) {
       await session.abortTransaction();
       session.endSession();
-      return next(new AppError('Please verify your phone number first', 406));
+      return next(new AppError("يرجى ادخال رمز التحقق (OTP)للنحقق من رقم الهاتف ", 406));
     }
 
     if (user.blocked) {
       await session.abortTransaction();
       session.endSession();
-      return next(new AppError('You are blocked', 400));
+      return next(new AppError('تم حظر حسابك', 400));
     }
 
     if (!user.approved) {
       await session.abortTransaction();
       session.endSession();
-      return next(new AppError('Your account has not been approved by the admin yet', 400));
+      return next(new AppError('يجري الاَن المراجعة والتحقق من بيانات الدخول', 400));
     }
 
-    // Check if the user is already logged in from another device
-    console.log("deviceDetails",user.deviceDetails)
-    console.log(" Object.keys(user.deviceDetails)", Object.keys(user.deviceDetails))
-    console.log(" Object.keys(user)", Object.keys(user.deviceDetails).length !== 0)
 
 
-    if (
-      // user.deviceDetails && 
-      // Object.keys(user.deviceDetails).length !== 0 && 
-      // deviceDetails && 
-      // user.deviceDetails.deviceId && 
-      // deviceDetails.deviceId && 
-      user.deviceDetails.deviceId !== null&&user.deviceDetails.deviceId !== deviceDetails.deviceId
-    ) {
-      // Clear the authToken if user is trying to log in from another device
-      // user.authToken = null;
-      await user.save({ session, validateBeforeSave: false });
-      await session.commitTransaction();
-      session.endSession();
-      return next(new AppError('You are already logged in from another device', 400));
+
+
+
+
+
+
+
+
+    // Check for prior device login
+    if (user.deviceDetails.deviceId && user.deviceDetails.deviceId !== deviceDetails.deviceId) {
+      user.authToken = null;  // Clear old token to ensure new login is required
     }
+
+    // Set new device details and FCM token
     user.deviceDetails = deviceDetails;
+    if (fcmToken) user.fcmToken = fcmToken;
     await user.save({ session, validateBeforeSave: false });
 
+    // Generate a new authToken and send it
     await createSendToken(user, 200, res, session);
 
     await session.commitTransaction();
@@ -813,9 +899,28 @@ const loginUser = catchAsync(async (req, res, next) => {
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
-    return next(new AppError(`Server error during login: ${error.message}`, 500));
+    return next(new AppError(`خطاء فى السيرفر اثناء تسجل الدخول: ${error.message}`, 500));
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -826,12 +931,12 @@ const approveUser = async (req, res, next) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return next(new AppError('User not found', 404));
+      return next(new AppError('المستخدم غير موجود', 404));
     }
 
     user.approved = true;
     await user.save();
-    await sendFirebaseNotification(user, 'Your account has been approved','activate your account')
+    await sendFirebaseNotification(user, 'تم الموافقة على حسابك','     حسابك نشط الأن ✅ '  )
     // Send account activation message
     // const activationMessage = 'Your account is now active. Welcome!';
     // try {
@@ -841,7 +946,7 @@ const approveUser = async (req, res, next) => {
     //   return next(new AppError('User approved but failed to send activation message', 500));
     // }
 
-    res.status(200).json({ message: 'User approved successfully and activation message sent' });
+    res.status(200).json({ message: 'تم الموافقة على الحساب ' });
   } catch (error) {
     next(new AppError('Server error during user approval', 500));
   }
@@ -861,13 +966,13 @@ const forgotPassword = async (req, res, next) => {
     const user = await User.findOne({ phoneNumber });
 
     if (!user) {
-      return next(new AppError('User not found', 400));
+      return next(new AppError('المستخدم غير موجود', 400));
     }
 
     // Check if an OTP was sent recently
     const recentOTP = await OTP.findOne({ userId: user._id }).sort({ createdAt: -1 });
     if (recentOTP && (Date.now() - new Date(recentOTP.createdAt).getTime()) < 3 * 60 * 1000) {
-      return next(new AppError('An OTP was sent recently. Please wait a few minutes before requesting a new one.', 400));
+      return next(new AppError('هناك كود تم ارساله بالفعل برجاء انتظار 3 دقائق قبل طلب كود اخر.', 400));
     }
 
     const otpCode = generateOTP();
@@ -878,12 +983,12 @@ const forgotPassword = async (req, res, next) => {
       await sendOTP(user.phoneNumber, otpCode);
     } catch (error) {
       await OTP.deleteMany({ userId: user._id });
-      return next(new AppError('Failed to send OTP. Please try again later.', 500));
+      return next(new AppError('فشل فى ارسال الكود الرجاء المحاولة لاحقا.', 500));
     }
 
-    return res.status(200).json({ status: "success", data: { message: 'OTP sent to your phone number', userId: user._id } });
+    return res.status(200).json({ status: "success", data: { message: 'تم ارسال الكود بنجاح', userId: user._id } });
   } catch (error) {
-    return next(new AppError('Server error', 500));
+    return next(new AppError('خطاء بالسيرفر', 500));
   }
 };
 
@@ -897,19 +1002,19 @@ const resetPassword = async (req, res, next) => {
 
     const otpRecord = await OTP.findOne({ userId, otpCode });
     if (!otpRecord || otpRecord.expiresAt < Date.now()) {
-      return next(new AppError('Invalid or expired OTP', 400));
+      return next(new AppError('او طلب كود اخر كود غير صالح برجاء ادخل الكود الصحيح', 400));
     }
 
     const passwordHash = await bcrypt.hash(newPassword, 10);
     await User.findByIdAndUpdate(userId, { passwordHash });
     await OTP.deleteMany({ userId });
 
-    return res.status(200).json({ message: 'Password reset successfully' });
+    return res.status(200).json({ message: 'تم اعادة تعيين كلمة المرور' });
   } catch (error) {
-    return res.status(500).json({ message: 'Server error', error });
+    return res.status(500).json({ message: 'خطاء فى السيرفر', error });
   }
 };
-
+0
 
 
 
@@ -978,20 +1083,20 @@ const changePassword = async (req, res) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return next(new AppError('User not found', 400));
+      return next(new AppError('المستخدم غير موجود', 400));
     }
 
     const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
     if (!isMatch) {
-      return next(new AppError('Invalid current password', 400));
+      return next(new AppError('برجاء التحقق من صحةالبيانات', 400));
     }
 
     const passwordHash = await bcrypt.hash(newPassword, 10);
     await User.findByIdAndUpdate(userId, { passwordHash });
 
-   return res.status(200).json({ message: 'Password changed successfully' });
+   return res.status(200).json({ message: 'تم تغيير كلمة المرور بنجاح' });
   } catch (error) {
-   return res.status(500).json({ message: 'Server error', error });
+   return res.status(500).json({ message: 'حدث خطاء بالسيرفر برجاء المحاولة لاحقا', error });
   }
 };
 
@@ -999,21 +1104,21 @@ const updateProfile = async (req, res) => {
   try {
     console.log(req.body)
     const { userId } = req.params;
-    const { name, birthdate, phoneNumber, idNumber ,profileImage,specialist,companyname,address,idImage,idbackImage} = req.body;
+    const { name, birthdate, phoneNumber, idNumber ,profileImage,specialist,companyname,address,idImage,idbackImage,altphoneNumber} = req.body;
     // const profileImage = req.files.profileImage ? req.files.profileImage[0].path : null;
     // const idImage = req.files && req.files.idImage ? req.files.idImage[0].path : null;
 
-    const updates = { name, birthdate, phoneNumber, idNumber,specialist, companyname,address};
+    const updates = { name, birthdate, phoneNumber, idNumber,specialist, companyname,address,altphoneNumber};
     if (idbackImage) updates.idbackImage = idbackImage;
     if (idImage) updates.idImage = idImage;
 
   const asd=  await User.findByIdAndUpdate(userId, updates, { new: true });
   asd.passwordHash=undefined
     
- return   res.status(200).json({ message: 'Profile updated successfully',data:asd });
+ return   res.status(200).json({ message: 'تم تعديل البيانات بنجاح',data:asd });
   } catch (error) {
     console.log(error)
-   return res.status(500).json({ message: 'Server error', error });
+   return res.status(500).json({ message: 'حدث خطاء بالسيرفر برجاء المحاولة لاحقا', error });
   }
 };
 
@@ -1054,26 +1159,43 @@ const blockUser = async (req, res) => {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-const logoutUser = async (req, res) => {
+// const logoutUser = async (req, res) => {
+//   try {
+//     const userId = req.user.id;
+//     console.log(userId)
+
+//     // Update isLogin status to false
+//    await User.findByIdAndUpdate(userId, {
+//       isLogin: false,
+//       authToken: null,
+//       deviceDetails: {}
+//     });
+
+//     res.status(200).json({ message: 'Logged out successfully.' });
+//   } catch (error) {
+//     res.status(500).json({ message: 'An error occurred during logout.', error: error.message });
+//   }
+// };
+
+
+
+const logoutUser = catchAsync(async (req, res, next) => {
   try {
     const userId = req.user.id;
-    console.log(userId)
 
-    // Update isLogin status to false
-   await User.findByIdAndUpdate(userId, {
+    // Update isLogin status to false, clear authToken, and reset device details
+    await User.findByIdAndUpdate(userId, {
       isLogin: false,
       authToken: null,
-      deviceDetails: {}
+      fcmToken:null,
+      deviceDetails: { deviceId: null, brand: null, model: null, version: null }
     });
 
-    res.status(200).json({ message: 'Logged out successfully.' });
+    res.status(200).json({ message: 'تم تسجيل الخروج بنجاح' });
   } catch (error) {
-    res.status(500).json({ message: 'An error occurred during logout.', error: error.message });
+    next(new AppError('حدث خطاء اثناء تسجيل الخروج', 500));
   }
-};
-
-
-
+});
 
 
 
@@ -1091,7 +1213,7 @@ const logoutUser = async (req, res) => {
         // Find the user
         const user = await User.findById(id).session(session);
         if (!user) {
-          throw new AppError('User not found', 404);
+          throw new AppError('المستخدم غير موجود', 404);
         }
     
         // Delete bids
@@ -1125,12 +1247,12 @@ const logoutUser = async (req, res) => {
         await session.commitTransaction();
         session.endSession();
     
-        res.status(200).json({ message: 'User and associated data deleted successfully.' });
+        res.status(200).json({ message: 'تم حذف حسابك بنجاح ' });
     
       } catch (error) {
         await session.abortTransaction();
         session.endSession();
-        next(new AppError(`An error occurred during user deletion.   ${error}`, 500));
+        next(new AppError(`حدث خطاء اثناء حذف الحساب برجاء اعادة المحاولة   ${error}`, 500));
       }
     };
     

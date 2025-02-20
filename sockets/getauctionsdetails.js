@@ -82,7 +82,7 @@ const getauctionsdetails = (io) => {
                     from: 'deposits',
                     let: { subcategoryId: '$_id' },
                     pipeline: [
-                      { $match: { $expr: { $and: [{ $eq: ['$item', '$$subcategoryId'] }, { $eq: ['$status', 'approved'] }] } } },
+                      { $match: { $expr: { $and: [{ $eq: ['$item', '$$subcategoryId'] }, { $ne: ['$status', 'rejected'] }] } } },
                       { $group: { _id: null, count: { $sum: 1 }, users: { $addToSet: '$userId' } } }
                     ],
                     as: 'approvedDeposits'

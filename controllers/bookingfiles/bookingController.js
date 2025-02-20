@@ -257,12 +257,14 @@
 const Booking = require('../../models/bookenigfile');
 const User = require('../../models/User');
 const Notification = require('../../models/notification');
+const Subcategory = require('../../models/subcategory');
+
 const mongoose = require('mongoose');
 const factory = require('../../utils/apiFactory');
 const AppError = require('../../utils/appError');
 const admin = require('../../firebase/firebaseAdmin'); // Firebase Admin SDK
 const APIFeatures = require('../../utils/apiFeatures');
-
+const AdminNotification = require('../../models/adminNotificationModel'); 
 // Helper function to send Firebase notifications
 const sendFirebaseNotification = async (user, title, body) => {
   if (user && user.fcmToken) {
@@ -292,17 +294,24 @@ exports.bookFile = async (req, res, next) => {
     const amount = req.item.fileprice;
 
     // Check for duplicate booking
-    const existingBooking = await Booking.findOne({ userId, item: itemId });
-    if (existingBooking) {
-      await session.abortTransaction();
-      session.endSession();
-      return next(new AppError('Booking already exists for this item and user', 400));
+    const existingBooking = await Booking.findOne({ userId, item: itemId ,billingmethod});
+    // if (existingBooking) {
+    //   await session.abortTransaction();
+    //   session.endSession();
+    //   return next(new AppError('طلب شراء الكراسة موجود بالفعل', 400));
+    // }
+    const subc = await Subcategory.findById(itemId); // Ensure Subcategory is used here
+    if (subc) {
+      if (subc.endDate && subc.endDate < Date.now()) {
+       return res.status(400).json({
+        message: 'المزاد انتهى لا يمكنك شراء كراسة الشروط  بعد انتهاء المزاد'
+      }); // Set amount to item's fileprice
+      } 
     }
-
     const newBooking = new Booking({
       userId,
       item: itemId,
-      amount,
+      amount:subc.fileprice,
       billingmethod,
       billImage: req.body.billImage,
       seenByadmin: billingmethod === 'wallet',
@@ -310,31 +319,32 @@ exports.bookFile = async (req, res, next) => {
     });
 
     const user = await User.findById(userId).session(session);
+    const subcategory = await Subcategory.findById(itemId).session(session);
+
 
     if (!user) {
       await session.abortTransaction();
       session.endSession();
-      return next(new AppError('User not found', 404));
+      return next(new AppError('المستخدم غير موجود', 404));
     }
 
     if (billingmethod === 'wallet') {
       if (user.walletBalance < amount) {
         await session.abortTransaction();
         session.endSession();
-        return next(new AppError('Insufficient wallet balance', 400));
+        return next(new AppError('المبلغ الموجود فى المحفظة غير كافي لشراء كراسة الشروط', 400));
       }
 
       user.walletBalance -= amount;
-      user.walletTransactions.push({ amount, type: 'withdrawal', description: `Booking for item ${itemId}` });
+      user.walletTransactions.push({ amount, type: 'withdrawal', description: ` كراسة الشروط لمزاد ${subcategory.name}` });
       await user.save({ session, validateBeforeSave: false });
     }
 
     await newBooking.save({ session });
 
     const notificationMessage = billingmethod === 'wallet'
-      ? `Your booking was successful for ${req.item.name}.`
-      : `Your booking for ${req.item.name} is pending admin approval.`;
-
+      ? `تم شراء كراسة الشروط ${req.item.name}.`
+      : `تم ارسال طلب شراء كراسة شروط مزاد ${req.item.name}`;
     const notification = new Notification({
       userId,
       message: notificationMessage,
@@ -342,15 +352,26 @@ exports.bookFile = async (req, res, next) => {
       type: 'bookingfiles',
     });
 
-    await sendFirebaseNotification(user, 'Booking Notification', notificationMessage);
+    await sendFirebaseNotification(user, 'طلب كراسة الشروط', notificationMessage);
     await notification.save({ session });
+    const adminNotificationMessage = billingmethod === 'wallet'
+      ? `New booking approved for ${req.item.name} by user ${user.phoneNumber}.`
+      : `New booking for ${req.item.name} requires approval.`;
 
+    const adminNotification = new AdminNotification({
+      userId,
+      title: 'New Booking Notification',
+      message: adminNotificationMessage,
+    });
+
+    await adminNotification.save({ session });
     await session.commitTransaction();
     session.endSession();
 
-    res.status(201).json({ message: 'Booking created successfully', booking: newBooking });
+    res.status(201).json({ message: 'طلب شراء كراسة الشروط تم الارسال بنجاح', booking: newBooking });
   } catch (error) {
     await session.abortTransaction();
+    console.log(error)
     session.endSession();
     next(new AppError(error.message, 500));
   }
@@ -376,22 +397,23 @@ exports.approveBooking = async (req, res) => {
       session.endSession();
       return res.status(404).json({ message: 'Booking not found' });
     }
-
+    const populatedBooking = await Booking.findById(bookingId).populate('item');
+    
     const notification = new Notification({
       userId: booking.userId,
-      message: 'Your booking has been approved.',
-      itemId: booking.item,
+      message: 'تم تاكيد شراء كراسة الشروط يمكنك الاطلاع والمعاينة لان',
+      itemId: populatedBooking.item,
       type: 'bookingfiles',
     });
     await notification.save({ session });
 
     const user = await User.findById(booking.userId).session(session);
-    await sendFirebaseNotification(user, 'Booking Approved', `Your booking for ${booking.item.name} has been approved.`);
+    await sendFirebaseNotification(user, 'شراء كراسة الشروط', ` تم تاكيد شراء كراسة الشروط يمكنك الاطلاع والمعاينة الأن لمزاد ${populatedBooking.item.name} `);
 
     await session.commitTransaction();
     session.endSession();
 
-    res.status(200).json({ message: 'Booking approved successfully', booking });
+    res.status(200).json({ message: 'تم الموافقة على طلب شراء كراسة الشروط ', booking });
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
@@ -407,31 +429,32 @@ exports.rejectBooking = async (req, res) => {
     const { id: bookingId } = req.params;
     const booking = await Booking.findByIdAndUpdate(
       bookingId,
-      { status: 'rejected', seenByadmin: true },
+      { status: 'regected', seenByadmin: true },
       { new: true, session }
     );
 
     if (!booking) {
       await session.abortTransaction();
       session.endSession();
-      return res.status(404).json({ message: 'Booking not found' });
+      return res.status(404).json({ message: 'طلب كراسة الشروط غير موجود' });
     }
+    const populatedBooking = await Booking.findById(bookingId).populate('item');
 
     const notification = new Notification({
       userId: booking.userId,
-      message: 'Your booking has been rejected.',
+      message: ` تم رفض طلب شراء كراسة الشروط لوجود خطأ بالبيانات برجاء اعادة المحاولة ${populatedBooking.item.name}`,
       itemId: booking.item,
       type: 'bookingfiles',
     });
     await notification.save({ session });
 
     const user = await User.findById(booking.userId).session(session);
-    await sendFirebaseNotification(user, 'Booking Rejected', `Your booking for ${booking.item.name} has been rejected.`);
+    await sendFirebaseNotification(user, "كراسة الشروط", `تم رفض طلب شراء كراسة الشروط لوجود خطأ بالبيانات برجاء اعادة المحاولة ${populatedBooking.item.name}`);
 
     await session.commitTransaction();
     session.endSession();
 
-    res.status(200).json({ message: 'Booking rejected successfully', booking });
+    res.status(200).json({ message: 'تم رفض دفع كراسة الشروط بنجاح', booking });
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
@@ -452,7 +475,7 @@ exports.getbookinghistory = async (req, res) => {
     const booking = await features.query.lean();
 
     if (!booking.length) {
-      return res.status(404).json({ message: 'No bookings found' });
+      return res.status(404).json({ message: 'لا يوجد مدفوعات' });
     }
 
     res.status(200).json({ message: 'Booking history', booking });

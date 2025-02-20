@@ -60,7 +60,9 @@ const handleLosers = async (
         user.walletTransactions.push({
           amount: deposit.amount,
           type: 'refund',
-          description: `Refund for item ${item.name} in subcategory ${subcategory.name}`,
+          description: `تم رد تامين مزاد ${subcategory.name} بمبلغ ${deposit.amount} لعد الترسية`,
+
+          // description: `Refund for item ${item.name} in subcategory ${subcategory.name}`,
         });
 
         deposit.status = 'refunded';

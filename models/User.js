@@ -80,7 +80,8 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-  name: { type: String, required: true },
+  name: { type: String,
+    required: [true, 'الاسم مطلوب']},
   fcmToken: { type: String },
   isLogin: { type: Boolean, default: false },
   email: { type: String},
@@ -96,6 +97,8 @@ const userSchema = new Schema({
   }],
   birthdate: { type: Date },
   phoneNumber: { type: String, required: true, unique: true },
+  altphoneNumber: { type: String,default: ''},
+
   passwordHash: { type: String, required: true },
   verified: { type: Boolean, default: false },
   blocked: { type: Boolean, default: false },

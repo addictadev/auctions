@@ -25,15 +25,15 @@ const validateDeposit = async (req, res, next) => {
   }
 
   // Check if there is already a deposit for this user and item
-  const existingDeposit = await Deposit.findOne({ userId, item });
-  if (existingDeposit) {
-    return next(new AppError('Deposit already exists for this item and user', 400));
-  }
+  // const existingDeposit = await Deposit.findOne({ userId, item });
+  // if (existingDeposit) {
+  //   return next(new AppError('Deposit already exists for this item and user', 400));
+  // }
 
   // Check if the user has approved booking files
   const bookingFile = await Booking.findOne({ userId, item, status: 'approved' });
   if (!bookingFile) {
-    return next(new AppError('No approved booking file found for this item and user', 400));
+    return next(new AppError('لا يوجد مدفوعات تأمين حتى الأن', 400));
   }
 
   // Ensure admin approval is required for non-wallet methods

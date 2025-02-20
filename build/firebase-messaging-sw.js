@@ -1,30 +1,31 @@
+// Import Firebase app and messaging for background notifications
+importScripts('https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.1.3/firebase-messaging-compat.js');
 
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/messaging';
-
-importScripts('https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js');
-importScripts('https://www.gstatic.com/firebasejs/8.6.1/firebase-messaging.js');
-
+// Initialize the Firebase app in the service worker with the config
 firebase.initializeApp({
-  apiKey: "AIzaSyCHHzM0Rj5CDPIorgPBdOx5Qq7o5CJoe5I",
-  authDomain: "pushnotificationsmazadat.firebaseapp.com",
-  projectId: "pushnotificationsmazadat",
-  storageBucket: "pushnotificationsmazadat.appspot.com",
-  messagingSenderId: "615745377208",
-  appId: "1:615745377208:web:f2f09e35497282338eb54d",
-  measurementId: "G-ZG4JTNPXQR"
+  apiKey: "AIzaSyD_rGp_BPWfX0aBa9ROrJDrgJtP8QM7sE8",
+  authDomain: "wabell-f335d.firebaseapp.com",
+  databaseURL: "https://wabell-f335d.firebaseio.com",
+  projectId: "wabell-f335d",
+  storageBucket: "wabell-f335d.appspot.com",
+  messagingSenderId: "906829148222",
+  appId: "1:906829148222:web:3598d06cef0048a414616f",
+  measurementId: "G-95TB7TS0CN"
 });
 
+// Retrieve an instance of Firebase Messaging
 const messaging = firebase.messaging();
 
-messaging.setBackgroundMessageHandler(function(payload) {
-  console.log('[firebase-messaging-sw.js] Received background message ', payload);
-  const notificationTitle = 'Background Message Title';
+// Handle background notifications
+messaging.onBackgroundMessage((payload) => {
+  console.log('[firebase-messaging-sw.js] Received background message', payload);
+  
+  const notificationTitle = payload.notification?.title || 'Background Notification';
   const notificationOptions = {
-    body: 'Background Message body.',
-    icon: '/firebase-logo.png'
+    body: payload.notification?.body || 'You have a new message.',
+    icon: '/firebase-logo.png' // Optional icon for the notification
   };
 
-  return self.registration.showNotification(notificationTitle,
-    notificationOptions);
+  self.registration.showNotification(notificationTitle, notificationOptions);
 });
